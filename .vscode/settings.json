@@ -1,0 +1,20 @@
+{
+    "files.associations": {
+        "ECRYPT_SYNC.C": "cpp",
+        "SOSEMANUK.C": "cpp"
+    },
+    "python.analysis.extraPaths": [
+        "./LW_Block_Cipher/SPN/PRESENT",
+        "./LW_Block_Cipher/ARX/CHAM",
+        "./LW_Block_Cipher/SPN/PRESENT/python_imp",
+        "./LW_Block_Cipher/SPN/PRESENT/c_imp",
+        "./LW_Block_Cipher/FN/SIMON/python_imp",
+        "./LW_Block_Cipher/ARX/SPECK/python_imp",
+        "./LW_Block_Cipher/FN/XTEA/python_imp",
+        "./LW_Block_Cipher/GFN/CLEFIA/c_imp",
+        "./LW_Stream_Cipher/LWAE/ASCON/c_imp",
+        "./LW_Stream_Cipher/LWAE/Grain128a/c_imp",
+        "./Conv_cipher/AES/python_imp",
+        "./Conv_cipher/AES/c_imp"
+    ]
+}

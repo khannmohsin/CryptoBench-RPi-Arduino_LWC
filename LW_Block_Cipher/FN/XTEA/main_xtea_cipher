@@ -1,0 +1,71 @@
+import ctypes
+import os
+
+# Define the constants
+BLOCK_SIZE = 8
+NUM_ROUNDS = 32
+KEY = [0xFACE, 0xDEAD, 0xBABE, 0xD00D]
+
+# Load the shared object file
+xtea_lib = ctypes.CDLL(os.path.join(os.getcwd(), "/Users/khannmohsin/VSCode Projects/Measurement_metrics_LWC/LW_Block_Cipher/FN/XTEA/c_imp/XTEA.so"))
+
+# Define the function prototypes
+encipher = xtea_lib.encipher
+encipher.argtypes = [ctypes.c_uint, ctypes.POINTER(ctypes.c_uint32), ctypes.POINTER(ctypes.c_uint32)]
+encipher.restype = None
+
+decipher = xtea_lib.decipher
+decipher.argtypes = [ctypes.c_uint, ctypes.POINTER(ctypes.c_uint32), ctypes.POINTER(ctypes.c_uint32)]
+decipher.restype = None
+
+# Define the Python function for file encryption/decryption
+def xtea(file_path, bool_encrypt):
+    # Open the file
+    with open(file_path, 'rb+') as file:
+        print("\nOpening file:", file_path)
+        file.seek(0, os.SEEK_END)
+        file_size = file.tell()
+        print("File size:", file_size, "bytes")
+        file.seek(0)
+
+        # Calculate number of blocks
+        block_number = (file_size + BLOCK_SIZE - 1) // BLOCK_SIZE
+        print("Number of blocks:", block_number)
+
+        # Encrypt or decrypt blocks
+        if bool_encrypt:
+            print("Starting encryption")
+        else:
+            print("Starting decryption")
+
+        for _ in range(block_number):
+            # Read data from file
+            data = file.read(BLOCK_SIZE)
+            data_int = [int.from_bytes(data[i:i+4], byteorder='little') for i in range(0, len(data), 4)]
+            data_arr = (ctypes.c_uint32 * 2)(*data_int)
+
+            # Encrypt or decrypt
+            if bool_encrypt:
+                encipher(NUM_ROUNDS, data_arr, (ctypes.c_uint32 * 4)(*KEY))
+            else:
+                decipher(NUM_ROUNDS, data_arr, (ctypes.c_uint32 * 4)(*KEY))
+
+            # Write data back to file
+            file.seek(-BLOCK_SIZE, os.SEEK_CUR)
+            file.write(bytes(b''.join(data_arr)))
+            file.seek(0, os.SEEK_CUR)
+
+    print("File operation completed.")
+
+# Example usage
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) != 3:
+        print("Usage:", sys.argv[0], "<file> <-e/-d>")
+        print("Example: {} photo.jpg -e".format(sys.argv[0]))
+        sys.exit(1)
+
+    file_path = sys.argv[1]
+    encrypt = sys.argv[2] == '-e'
+    xtea(file_path, encrypt)

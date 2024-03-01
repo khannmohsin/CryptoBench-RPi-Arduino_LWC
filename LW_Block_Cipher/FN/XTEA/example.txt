@@ -1,0 +1,1 @@
+This is a sample text that we can use for encryption and decryption using XTEA algorithm.
