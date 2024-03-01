@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# -----------------C compilation of AES CIPHER -----------------
+python3 main.py aes 128 Files/Crypto_input/video/video_2.mp4 128
+
+python3 main.py aes 192 Files/Crypto_input/video/video_2.mp4 128
+
+python3 main.py aes 256 Files/Crypto_input/video/video_2.mp4 128
+
+# -----------------Python compilation of AES CIPHER -----------------
+python3 main.py py-aes 128 Files/Crypto_input/video/video_2.mp4 128
+
+python3 main.py py-aes 192 Files/Crypto_input/video/video_2.mp4 128
+
+python3 main.py py-aes 256 Files/Crypto_input/video/video_2.mp4 128
 
 # -----------------C Implementation of PRESENT CIPHER -----------------
 python3 main.py present 80 Files/Crypto_input/video/video_2.mp4 64
@@ -28,7 +41,7 @@ python3 main.py py-simon 96 Files/Crypto_input/video/video_2.mp4 64
 
 python3 main.py py-simon 128 Files/Crypto_input/video/video_2.mp4 64
 
-pythom3 main.py py-simon 96 Files/Crypto_input/video/video_2.mp4 96
+python3 main.py py-simon 96 Files/Crypto_input/video/video_2.mp4 96
 
 python3 main.py py-simon 128 Files/Crypto_input/video/video_2.mp4 128
 
