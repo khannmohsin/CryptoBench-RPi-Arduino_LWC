@@ -1,6 +1,4 @@
 import ctypes
-import cv2
-import numpy as np
 import time
 
 crypto_lib = ctypes.CDLL('LW_Stream_Cipher/LWAE/ASCON/c_imp/main.so')

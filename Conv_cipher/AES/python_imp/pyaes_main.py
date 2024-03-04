@@ -1,4 +1,3 @@
-import os
 from aes import AES
 import time
 
@@ -95,7 +94,7 @@ def pyaes_encrypt_file(plaintext, key, block_size):
 
     print("Encryption Throughput:", throughput, "Kbps")
 
-    return ciphertext, total_encryption_time, throughput
+    return ciphertext, formatted_total_encryption_time, throughput
 
 
 def pyaes_decrypt_file(ciphertext, key, block_size):
@@ -136,4 +135,4 @@ def pyaes_decrypt_file(ciphertext, key, block_size):
 
     print("Decryption Throughput:", throughput, "Kbps")
 
-    return plaintext, total_decryption_time, throughput
+    return plaintext, formatted_total_decryption_time, throughput

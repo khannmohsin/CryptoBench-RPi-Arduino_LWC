@@ -75,7 +75,7 @@ def main():
     parser.add_argument("block_size", help="The size of the block to use (optional)", choices=["32", "48", "64", "96","128", "-"], default="64")
     args = parser.parse_args()
 
-    number_of_iterations = 1
+    number_of_iterations = 10
 
     with open(args.file_path, 'rb') as file:
         plaintext = file.read()
@@ -117,15 +117,15 @@ def main():
 
                 if args.key_size == "128":
                     decrypted_output, dec_time, dec_throughput = c_aes_decrypt_file(imdt_output, key)
-                    save_to_csv("py-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput)
+                    save_to_csv("c-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput)
 
                 elif args.key_size == "192":
                     decrypted_output, dec_time, dec_throughput = c_aes_decrypt_file(imdt_output, key)
-                    save_to_csv("py-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput)
+                    save_to_csv("c-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput)
 
                 elif args.key_size == "256":
                     decrypted_output, dec_time, dec_throughput = c_aes_decrypt_file(imdt_output, key)
-                    save_to_csv("py-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput)
+                    save_to_csv("c-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)

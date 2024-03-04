@@ -19,6 +19,11 @@ python3 main.py present 80 Files/Crypto_input/video/video_2.mp4 64
 
 python3 main.py present 128 Files/Crypto_input/video/video_2.mp4 64
 
+# -----------------PYTHON Implementation of PRESENT CIPHER -----------------
+python3 main.py py-present 80 Files/Crypto_input/video/video_2.mp4 64
+
+python3 main.py py-present 128 Files/Crypto_input/video/video_2.mp4 64
+
 # -----------------Python Implementation of X-TEA CIPHER -----------------
 
 python3 main.py py-xtea 128 Files/Crypto_input/video/video_2.mp4 64
@@ -73,9 +78,4 @@ python3 main.py ascon 128 Files/Crypto_input/video/video_2.mp4 -
 
 # -----------------C Implementation of Grain128a CIPHER -----------------
 
-python3 main.py grain-128s 128 Files/Crypto_input/video/video_2.mp4 -
-
-# -----------------PYTHON Implementation of PRESENT CIPHER -----------------
-python3 main.py py-present 80 Files/Crypto_input/video/video_2.mp4 64
-
-python3 main.py py-present 128 Files/Crypto_input/video/video_2.mp4 64
+python3 main.py grain-128a 128 Files/Crypto_input/video/video_2.mp4 -
