@@ -22,8 +22,7 @@
 /* 
  * The name of your cipher.
  */
-#define ECRYPT_NAME "MICKEY-v2"    /* [edited] */ 
-#define ECRYPT_PROFILE "___H3"
+#define ECRYPT_NAME "MICKEY"    /* [edited] */ 
 
 /*
  * Specify which key and IV sizes are supported by your cipher. A user
@@ -349,26 +348,6 @@ void ECRYPT_keystream_blocks(
 
 #endif
 
-#endif
-
-/*
- * If your cipher can be implemented in different ways, you can use
- * the ECRYPT_VARIANT parameter to allow the user to choose between
- * them at compile time (e.g., gcc -DECRYPT_VARIANT=3 ...). Please
- * only use this possibility if you really think it could make a
- * significant difference and keep the number of variants
- * (ECRYPT_MAXVARIANT) as small as possible (definitely not more than
- * 10). Note also that all variants should have exactly the same
- * external interface (i.e., the same ECRYPT_BLOCKLENGTH, etc.).
- */
-#define ECRYPT_MAXVARIANT 1                   /* [edit] */
-
-#ifndef ECRYPT_VARIANT
-#define ECRYPT_VARIANT 1
-#endif
-
-#if (ECRYPT_VARIANT > ECRYPT_MAXVARIANT)
-#error this variant does not exist
 #endif
 
 /* ------------------------------------------------------------------------- */

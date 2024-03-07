@@ -69,7 +69,7 @@ def update_csv_data(filename, algorithm, block_size, key_size, value):
 
 def main():
     parser = argparse.ArgumentParser(description="Encrypt/Decrypt files using different cryptographic algorithms")
-    parser.add_argument("algorithm", help="The cryptographic algorithm to use", choices=["aes", "py-aes", "present", "py-present", "py-xtea", "clefia", "py-simon", "py-speck", "ascon" , "grain-128a"])
+    parser.add_argument("algorithm", help="The cryptographic algorithm to use", choices=["aes", "py-aes", "present", "py-present", "py-xtea", "clefia", "py-simon", "py-speck", "ascon" , "grain-128a", "mickey", "trivium", "salsa", "sosemanuk"])
     parser.add_argument("key_size", help="The size of the key to use", choices=["64", "80", "96", "128", "192", "256"])
     parser.add_argument("file_path", help="The path to the file to encrypt/decrypt")
     parser.add_argument("block_size", help="The size of the block to use (optional)", choices=["32", "48", "64", "96","128", "-"], default="64")
@@ -703,6 +703,115 @@ def main():
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
+
+
+#------------------------------------------ C IMP OF Mickey-v2 CIPHER ------------------------------------------
+
+    if args.algorithm == "mickey":
+             
+            sys.path.append('LW_Stream_Cipher/eSTREAM/HW_oriented/Mickey/c_imp')
+            from cMickey_main import c_mickey_encrypt_file, c_mickey_decrypt_file
+            for i in range(number_of_iterations):   
+                if args.key_size == "80":
+                    print("You selected the 80-bit key C Mickey-v2 algorithm.")
+                    random_key_bits, random_bytes = generate_random_key(80)
+                    key = random_bytes
+                    imdt_output, enc_time, enc_throughput  = c_mickey_encrypt_file(plaintext, key)
+
+                else:
+                    print("--------------Invalid key size for the C Mickey-v2 algorithm.--------------")
+                    
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+        
+                if args.key_size == "80":
+                    decrypted_output, dec_time, dec_throughput = c_mickey_decrypt_file(imdt_output, key)
+                    save_to_csv("c-MICKEY-80", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+
+
+#------------------------------------------ C IMP OF Trivium CIPHER ------------------------------------------
+
+    if args.algorithm == "trivium":
+             
+            sys.path.append("LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp")
+            from cTRivium_main import c_trivium_encrypt_file, c_trivium_decrypt_file
+            for i in range(number_of_iterations):   
+                if args.key_size == "80":
+                    print("You selected the 80-bit key C Trivium algorithm.")
+                    random_key_bits, random_bytes = generate_random_key(80)
+                    key = random_bytes
+                    imdt_output, enc_time, enc_throughput  = c_trivium_encrypt_file(plaintext, key)
+
+                else:
+                    print("--------------Invalid key size for the C Mickey-v2 algorithm.--------------")
+                    
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+        
+                if args.key_size == "80":
+                    decrypted_output, dec_time, dec_throughput = c_trivium_decrypt_file(imdt_output, key)
+                    save_to_csv("c-Trivium-80", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+
+
+#------------------------------------------ C IMP OF Salsa CIPHER ------------------------------------------
+
+    if args.algorithm == "salsa":
+             
+            sys.path.append("LW_Stream_Cipher/eSTREAM/SW_oriented/Salsa/c_imp")
+            from cSalsa_main import c_salsa_encrypt_file, c_salsa_decrypt_file
+            for i in range(number_of_iterations):   
+                if args.key_size == "128":
+                    print("You selected the 128-bit key C Salsa20 algorithm.")
+                    random_key_bits, random_bytes = generate_random_key(128)
+                    key = random_bytes
+                    imdt_output, enc_time, enc_throughput  = c_salsa_encrypt_file(plaintext, key)
+
+                else:
+                    print("--------------Invalid key size for the C Salsa20 algorithm.--------------")
+                    
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+        
+                if args.key_size == "128":
+                    decrypted_output, dec_time, dec_throughput = c_salsa_decrypt_file(imdt_output, key)
+                    save_to_csv("c-Salsa-128", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+
+#------------------------------------------ C IMP OF Sosemanuk CIPHER ------------------------------------------
+
+    if args.algorithm == "sosemanuk":
+             
+            sys.path.append("LW_Stream_Cipher/eSTREAM/SW_oriented/Sosemanuk/c_imp")
+            from cSosemanuk_main import c_sosemanuk_encrypt_file, c_sosemanuk_decrypt_file
+            for i in range(number_of_iterations):   
+                if args.key_size == "128":
+                    print("You selected the 128-bit key C Sosemanuk algorithm.")
+                    random_key_bits, random_bytes = generate_random_key(128)
+                    key = random_bytes
+                    imdt_output, enc_time, enc_throughput  = c_sosemanuk_encrypt_file(plaintext, key)
+
+                else:
+                    print("--------------Invalid key size for the C Sosemanuk algorithm.--------------")
+                    
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+        
+                if args.key_size == "128":
+                    decrypted_output, dec_time, dec_throughput = c_sosemanuk_decrypt_file(imdt_output, key)
+                    # save_to_csv("c-Sosemanuk-128", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+
+
 
 
 if __name__ == "__main__":

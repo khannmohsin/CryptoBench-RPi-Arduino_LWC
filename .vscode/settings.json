@@ -1,7 +1,8 @@
 {
     "files.associations": {
         "ECRYPT_SYNC.C": "cpp",
-        "SOSEMANUK.C": "cpp"
+        "SOSEMANUK.C": "cpp",
+        "ecrypt-sync.h": "c"
     },
     "python.analysis.extraPaths": [
         "./LW_Block_Cipher/SPN/PRESENT",
@@ -15,6 +16,32 @@
         "./LW_Stream_Cipher/LWAE/ASCON/c_imp",
         "./LW_Stream_Cipher/LWAE/Grain128a/c_imp",
         "./Conv_cipher/AES/python_imp",
-        "./Conv_cipher/AES/c_imp"
+        "./Conv_cipher/AES/c_imp",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Mickey/c_imp",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp",
+        "./LW_Stream_Cipher/eSTREAM/SW_oriented/Salsa/c_imp",
+        "./LW_Stream_Cipher/eSTREAM/SW_oriented/Sosemanuk/c_imp"
     ]
 }
