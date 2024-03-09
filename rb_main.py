@@ -8,7 +8,7 @@ import subprocess
 
 
 avg_cpu_cycles = []
-bcmticks_process = subprocess.Popen(["./LW_Block_Cipher/SPN/PRESENT/c_imp/first_cycles"])
+bcmticks_process = subprocess.Popen(["./first_cycles"])
 time.sleep(10)
 bcmticks_process.terminate() 
 os.system(f"kill -9 {bcmticks_process.pid}")
@@ -20,15 +20,12 @@ else:
 
 with open ('output.txt', 'r') as file:
     lines = file.readlines()
-
 for line in lines:
     line = line.strip()
     avg_cpu_cycles.append(int(line))
 
 avg_cpu_cycles = avg_cpu_cycles[1:]
 avg_cpu_cycles = sum(avg_cpu_cycles)/len(avg_cpu_cycles)
-
-print(avg_cpu_cycles)
 
 os.remove('output.txt')
 
@@ -138,6 +135,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
                     
@@ -158,6 +156,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -178,6 +177,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -202,6 +202,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("c-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -220,6 +221,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("c-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -238,6 +240,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("c-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -274,6 +277,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
                     
@@ -294,6 +298,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -314,6 +319,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -338,6 +344,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -356,6 +363,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -374,6 +382,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -410,6 +419,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
                 
@@ -430,6 +440,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -455,6 +466,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("c-PRESENT", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -473,6 +485,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("c-PRESENT", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -509,6 +522,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
                 
@@ -529,6 +543,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -553,6 +568,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-PRESENT", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -571,6 +587,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-PRESENT", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -605,6 +622,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -629,6 +647,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-XTEA", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -664,6 +683,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -684,6 +704,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -704,6 +725,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -728,6 +750,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("c-CLEFIA", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -746,6 +769,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("c-CLEFIA", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -764,6 +788,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("c-CLEFIA", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -800,6 +825,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -824,6 +850,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -850,6 +877,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -874,6 +902,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -900,6 +929,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
                 
@@ -920,6 +950,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -944,6 +975,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -962,6 +994,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -988,6 +1021,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -1011,6 +1045,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1037,6 +1072,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -1057,6 +1093,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
                 
@@ -1077,6 +1114,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -1101,6 +1139,7 @@ def main():
                     
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1119,6 +1158,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1137,6 +1177,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1173,6 +1214,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -1197,6 +1239,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
 
@@ -1222,6 +1265,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -1246,6 +1290,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1272,6 +1317,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
                 
@@ -1292,6 +1338,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -1316,6 +1363,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1334,6 +1382,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1360,6 +1409,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -1384,6 +1434,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1410,6 +1461,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -1430,6 +1482,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
                 
@@ -1450,6 +1503,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt') 
 
@@ -1474,6 +1528,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1492,6 +1547,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1510,6 +1566,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1542,6 +1599,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -1565,6 +1623,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("c-ASCON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1596,6 +1655,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -1619,6 +1679,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("c-Grain-128a", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1651,6 +1712,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -1674,6 +1736,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("c-MICKEY-80", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1706,6 +1769,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -1729,6 +1793,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("c-Trivium-80", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1761,6 +1826,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -1784,6 +1850,7 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
                     save_to_csv("c-Salsa-128", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
@@ -1815,6 +1882,7 @@ def main():
 
                     cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
                     cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
                     print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
                     os.remove('output.txt')
 
@@ -1838,14 +1906,12 @@ def main():
 
                     cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     save_to_csv("c-Sosemanuk-128", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
-
-
-
-
+                    
 if __name__ == "__main__":
     main()
