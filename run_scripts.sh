@@ -79,3 +79,19 @@ python3 main.py ascon 128 Files/Crypto_input/video/video_2.mp4 -
 # -----------------C Implementation of Grain128a CIPHER -----------------
 
 python3 main.py grain-128a 128 Files/Crypto_input/video/video_2.mp4 -
+
+# -----------------C Implementation of Mickey-v2 CIPHER -----------------
+
+python3 main.py mickey 80 Files/Crypto_input/video/video_2.mp4 -
+
+# -----------------C Implementation of Trivium CIPHER -----------------
+
+python3 main.py trivium 80 Files/Crypto_input/video/video_2.mp4 -
+
+# -----------------C Implementation of Salsa20 CIPHER -----------------
+
+python3 main.py salsa 128 Files/Crypto_input/video/video_2.mp4 -
+
+# -----------------C Implementation of Sosemanuk CIPHER -----------------
+
+python3 main.py sosemanuk 128 Files/Crypto_input/video/video_2.mp4 -
