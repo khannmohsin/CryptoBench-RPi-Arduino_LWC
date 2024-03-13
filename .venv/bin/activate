@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/khannmohsin/VSCode Projects/Measurement_metrics_LWC/.venv"
+VIRTUAL_ENV="/Users/khannmohsin/VSCode Projects/LWC_benchmarking_tool/.venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

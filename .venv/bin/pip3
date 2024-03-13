@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/Users/khannmohsin/VSCode Projects/Measurement_metrics_LWC/.venv/bin/python3" "$0" "$@"
+'''exec' "/Users/khannmohsin/VSCode Projects/LWC_benchmarking_tool/.venv/bin/python" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re

@@ -1,3 +1,4 @@
+import memory_profiler
 import argparse
 import secrets
 import sys
@@ -43,14 +44,16 @@ def generate_random_key(num_bits):
     
     return random_key_bits, random_bytes
 
-def save_to_csv(algorithm, block_size, key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec):
-    headers = ['Algorithm', 'Block Size', 'Key Size', 'Time', 'Throughput', 'Cycles per Byte']
+def save_to_csv(algorithm, block_size, key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram):
+    headers = ['Algorithm', 'Block Size', 'Key Size', 'Time', 'Throughput', 'Cycles per Byte', 'RAM']
     enc_time_filename = 'Measurements/encryption_time.csv'
     dec_time_filename = 'Measurements/decryption_time.csv'
     enc_throughput_filename = 'Measurements/encryption_throughput.csv'
     dec_throughput_filename = 'Measurements/decryption_throughput.csv'
     enc_CpB_filename = 'Measurements/encryption_CpB.csv'
     dec_CpB_filename = 'Measurements/decryption_CpB.csv'
+    enc_ram_filename = 'Measurements/encryption_RAM.csv'
+    dec_ram_filename = 'Measurements/decryption_RAM.csv'
     # Update data for Encryption Time
     update_csv_data(enc_time_filename, algorithm, block_size, key_size, enc_time)
 
@@ -68,6 +71,12 @@ def save_to_csv(algorithm, block_size, key_size, enc_time, enc_throughput, dec_t
 
     # Update data for Decryption Cycles per Byte
     update_csv_data(dec_CpB_filename, algorithm, block_size, key_size, cycle_per_byte_dec)
+
+    # Update data for Encryption RAM
+    update_csv_data(enc_ram_filename, algorithm, block_size, key_size, enc_ram)
+
+    # Update data for Decryption RAM
+    update_csv_data(dec_ram_filename, algorithm, block_size, key_size, dec_ram)
 
 def update_csv_data(filename, algorithm, block_size, key_size, value):
     if not os.path.isfile(filename):
@@ -107,6 +116,10 @@ def main():
 
     number_of_iterations = 10
 
+    file_size_mb = round(os.path.getsize(args.file_path) / (1024 * 1024), 2)
+    print("\n----------------------------------------------------------------------------------------------------------")
+    print(f"Selected algorithm: {args.algorithm}, key size: {args.key_size}, block size: {args.block_size}, size of file: {file_size_mb} MB., number of iterations: {number_of_iterations}\n")
+    print("------------------------------------------------------------------------------------------------------------")
     with open(args.file_path, 'rb') as file:
         plaintext = file.read()
 #------------------------------------------ C IMP OF AES CIPHER ------------------------------------------
@@ -116,15 +129,16 @@ def main():
         from cAES_main import c_aes_encrypt_file, c_aes_decrypt_file
         
         for i in range(number_of_iterations):
+            print("\n-----------C-imp of AES | Iteration: ", i+1)
             if args.block_size == "128":
                 block_size = 128
+                print("Encryption Metrics: ")
                 if args.key_size == "128":
-                    print("You selected the 128-bt C AES algorithm.")
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = c_aes_encrypt_file(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_aes_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -140,12 +154,11 @@ def main():
                     os.remove('output.txt')
                     
                 elif args.key_size == "192":
-                    print("You selected the 192-bit C AES algorithm.")
                     random_key_bits, random_bytes = generate_random_key(192)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = c_aes_encrypt_file(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_aes_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -161,12 +174,11 @@ def main():
                     os.remove('output.txt')
 
                 elif args.key_size == "256":
-                    print("You selected the 256-bit C AES algorithm.")
                     random_key_bits, random_bytes = generate_random_key(256)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = c_aes_encrypt_file(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_aes_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -188,10 +200,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = c_aes_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_aes_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -205,12 +218,12 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("c-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("c-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 elif args.key_size == "192":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = c_aes_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_aes_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -224,12 +237,12 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("c-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("c-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 elif args.key_size == "256":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = c_aes_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_aes_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -243,7 +256,7 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("c-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("c-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
@@ -258,15 +271,16 @@ def main():
         from pyaes_main import pyaes_encrypt_file, pyaes_decrypt_file
         
         for i in range(number_of_iterations):
+            print("\n-----------Python-imp of AES | Iteration: ", i+1)
             if args.block_size == "128":
                 block_size = 128
+                print("Encryption Metrics: ")
                 if args.key_size == "128":
-                    print("You selected the 128-bt Python AES algorithm.")
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pyaes_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pyaes_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -282,12 +296,11 @@ def main():
                     os.remove('output.txt')
                     
                 elif args.key_size == "192":
-                    print("You selected the 192-bit Python AES algorithm.")
                     random_key_bits, random_bytes = generate_random_key(192)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pyaes_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pyaes_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -303,12 +316,11 @@ def main():
                     os.remove('output.txt')
 
                 elif args.key_size == "256":
-                    print("You selected the 256-bit Python AES algorithm.")
                     random_key_bits, random_bytes = generate_random_key(256)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pyaes_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pyaes_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -330,10 +342,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pyaes_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pyaes_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -347,12 +360,12 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 elif args.key_size == "192":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pyaes_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pyaes_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -366,12 +379,12 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 elif args.key_size == "256":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pyaes_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pyaes_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -385,7 +398,7 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-AES", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
@@ -401,14 +414,15 @@ def main():
         from cpresent_main import c_present_encrypt_file_key_80, c_present_decrypt_file_key_80, c_present_encrypt_file_key_128, c_present_decrypt_file_key_128
 
         for i in range(number_of_iterations):
+            print("\n-----------C-imp of PRESENT | Iteration: ", i+1)
             if args.block_size == "64":
+                print("Encryption Metrics: ")
                 if args.key_size == "80":
-                    print("You selected the C PRESENT algorithm with a 80-bit key.")
                     random_key_bits, random_bytes = generate_random_key(80)
                     key = random_key_bits
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput  = c_present_encrypt_file_key_80(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram   = c_present_encrypt_file_key_80(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -424,12 +438,11 @@ def main():
                     os.remove('output.txt')
                 
                 elif args.key_size == "128":
-                    print("You selected the C PRESENT algorithm with a 128-bit key.")
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_key_bits
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = c_present_encrypt_file_key_128(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_present_encrypt_file_key_128(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -452,10 +465,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "80":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = c_present_decrypt_file_key_80(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_present_decrypt_file_key_80(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -469,12 +483,12 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("c-PRESENT", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("c-PRESENT", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 elif args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = c_present_decrypt_file_key_128(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_present_decrypt_file_key_128(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -488,7 +502,7 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("c-PRESENT", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("c-PRESENT", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
                 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
@@ -504,14 +518,15 @@ def main():
         from pypresent_main import pypresent_encrypt_file, pypresent_decrypt_file
 
         for i in range(number_of_iterations):
+            print("\n-----------Python-imp of PRESENT | Iteration: ", i+1)
             if args.block_size == "64":
+                print("Encryption Metrics: ")
                 if args.key_size == "80":
-                    print("You selected the Python PRESENT algorithm.")
                     random_key_bits, random_bytes = generate_random_key(80)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput  = pypresent_encrypt_file(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram  = pypresent_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -527,12 +542,11 @@ def main():
                     os.remove('output.txt')
                 
                 elif args.key_size == "128":
-                    print("You selected the Python PRESENT algorithm.")
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pypresent_encrypt_file(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pypresent_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -554,10 +568,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "80":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput  = pypresent_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram  = pypresent_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -571,12 +586,12 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-PRESENT", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-PRESENT", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 elif args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput  = pypresent_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram  = pypresent_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()        
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -590,7 +605,7 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-PRESENT", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-PRESENT", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
@@ -604,14 +619,15 @@ def main():
         from pyxtea_main import pyxtea_encrypt_file, pyxtea_decrypt_file
         
         for i in range(number_of_iterations):
+            print("\n-----------Python-imp of XTEA | Iteration: ", i+1)
             if args.block_size == "64":
+                print("Encryption Metrics: ")
                 if args.key_size == "128":
-                    print("You selected the Python XTEA algorithm.")
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pyxtea_encrypt_file(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pyxtea_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -633,10 +649,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pyxtea_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pyxtea_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -650,7 +667,7 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-XTEA", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-XTEA", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
@@ -665,14 +682,16 @@ def main():
         from cClefia_main import cClefia_encrypt_file, cClefia_decrypt_file
         
         for i in range(number_of_iterations):
+            print("\n-----------C-imp of CLEFIA | Iteration: ", i+1)
             if args.block_size == "128":
+                block_size = 128
+                print("Encryption Metrics: ")
                 if args.key_size == "128":
-                    print("You selected the 128-bt C Clefia algorithm.")
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = cClefia_encrypt_file(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram = cClefia_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -688,12 +707,11 @@ def main():
                     os.remove('output.txt')
 
                 elif args.key_size == "192":
-                    print("You selected the 192-bit C Clefia algorithm.")
                     random_key_bits, random_bytes = generate_random_key(192)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = cClefia_encrypt_file(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram = cClefia_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -709,12 +727,11 @@ def main():
                     os.remove('output.txt')
 
                 elif args.key_size == "256":
-                    print("You selected the 256-bit C Clefia algorithm.")
                     random_key_bits, random_bytes = generate_random_key(256)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = cClefia_encrypt_file(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram = cClefia_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -736,10 +753,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = cClefia_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = cClefia_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -753,12 +771,12 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("c-CLEFIA", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("c-CLEFIA", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 elif args.key_size == "192":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = cClefia_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = cClefia_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -772,12 +790,12 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("c-CLEFIA", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("c-CLEFIA", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 elif args.key_size == "256":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = cClefia_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = cClefia_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -791,7 +809,7 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("c-CLEFIA", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("c-CLEFIA", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
@@ -806,15 +824,16 @@ def main():
         from pysimon_main import pysimon_encrypt_file, pysimon_decrypt_file
 
         for i in range(number_of_iterations):
+            print("\n-----------Python-imp of SIMON | Iteration: ", i+1)
             if args.block_size == "32":
                 block_size = 32
+                print("Encryption Metrics: ")
                 if args.key_size == "64":
-                    print("You selected the Python SIMON algorithm.")
                     random_key_bits, random_bytes = generate_random_key(64)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pysimon_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -836,10 +855,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "64":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pysimon_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -853,20 +873,20 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
             
             elif args.block_size == "48":
                 block_size = 48
+                print("Encryption Metrics: ")
                 if args.key_size == "96":
-                    print("You selected the Python SIMON algorithm.")
                     random_key_bits, random_bytes = generate_random_key(96)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pysimon_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -888,10 +908,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "96":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pysimon_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -905,20 +926,20 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
 
             elif args.block_size == "64":
                 block_size = 64
+                print("Encryption Metrics: ")
                 if args.key_size == "96":
-                    print("You selected the Python SIMON algorithm.")
                     random_key_bits, random_bytes = generate_random_key(96)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pysimon_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -934,12 +955,11 @@ def main():
                     os.remove('output.txt')
                 
                 elif args.key_size == "128":
-                    print("You selected the Python SIMON algorithm.")
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pysimon_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -961,10 +981,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "96":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pysimon_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -978,12 +999,12 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 elif args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pysimon_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -997,20 +1018,20 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
 
             elif args.block_size == "96":
                 block_size = 96
+                print("Encryption Metrics: ")
                 if args.key_size == "96":
-                    print("You selected the Python SIMON algorithm.")
                     random_key_bits, random_bytes = generate_random_key(96)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pysimon_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1031,10 +1052,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "96":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pysimon_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1048,20 +1070,20 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
 
             elif args.block_size == "128":
                 block_size = 128
+                print("Encryption Metrics: ")
                 if args.key_size == "128":
-                    print("You selected the Python SIMON algorithm.")
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pysimon_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1077,12 +1099,11 @@ def main():
                     os.remove('output.txt')
 
                 elif args.key_size == "192":
-                    print("You selected the Python SIMON algorithm.")
                     random_key_bits, random_bytes = generate_random_key(192)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pysimon_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1098,12 +1119,11 @@ def main():
                     os.remove('output.txt')
                 
                 elif args.key_size == "256":
-                    print("You selected the Python SIMON algorithm.")
                     random_key_bits, random_bytes = generate_random_key(256)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pysimon_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1125,10 +1145,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pysimon_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1142,12 +1163,12 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
                 
                 elif args.key_size == "192":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pysimon_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1161,12 +1182,12 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 elif args.key_size == "256":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pysimon_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1180,7 +1201,7 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
@@ -1195,15 +1216,16 @@ def main():
         from pyspeck_main import pyspeck_encrypt_file, pyspeck_decrypt_file
 
         for i in range(number_of_iterations):
+            print("\n-----------Python-imp of SPECK | Iteration: ", i+1)
             if args.block_size == "32":
                 block_size = 32
+                print("Encryption Metrics: ")
                 if args.key_size == "64":
-                    print("You selected the Python SPECK algorithm.")
                     random_key_bits, random_bytes = generate_random_key(64)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pyspeck_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1225,10 +1247,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "64":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pyspeck_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1241,20 +1264,20 @@ def main():
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
-                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
             
             elif args.block_size == "48":
                 block_size = 48
+                print("Encryption Metrics: ")
                 if args.key_size == "96":
-                    print("You selected the Python SPECK algorithm.")
                     random_key_bits, random_bytes = generate_random_key(96)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pyspeck_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1276,10 +1299,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "96":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pyspeck_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1293,20 +1317,20 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
 
             elif args.block_size == "64":
                 block_size = 64
+                print("Encryption Metrics: ")
                 if args.key_size == "96":
-                    print("You selected the Python SPECK algorithm.")
                     random_key_bits, random_bytes = generate_random_key(96)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pyspeck_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1322,12 +1346,11 @@ def main():
                     os.remove('output.txt')
                 
                 elif args.key_size == "128":
-                    print("You selected the Python SPECK algorithm.")
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pyspeck_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1349,10 +1372,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "96":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pyspeck_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1366,12 +1390,12 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 elif args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pyspeck_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1385,20 +1409,20 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
 
             elif args.block_size == "96":
                 block_size = 96
+                print("Encryption Metrics: ")
                 if args.key_size == "96":
-                    print("You selected the Python SPECK algorithm.")
                     random_key_bits, random_bytes = generate_random_key(96)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pyspeck_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1420,10 +1444,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "96":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pyspeck_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1437,20 +1462,20 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
 
             elif args.block_size == "128":
                 block_size = 128
+                print("Encryption Metrics: ")
                 if args.key_size == "128":
-                    print("You selected the Python SPECK algorithm.")
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pyspeck_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1466,12 +1491,11 @@ def main():
                     os.remove('output.txt')
 
                 elif args.key_size == "192":
-                    print("You selected the Python SPECK algorithm.")
                     random_key_bits, random_bytes = generate_random_key(192)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pyspeck_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1487,12 +1511,11 @@ def main():
                     os.remove('output.txt')
                 
                 elif args.key_size == "256":
-                    print("You selected the Python SPECK algorithm.")
                     random_key_bits, random_bytes = generate_random_key(256)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = pyspeck_encrypt_file(plaintext, key, block_size)
+                    imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1514,10 +1537,11 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                print("\nDecryption Metrics: ")
                 if args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pyspeck_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1531,12 +1555,12 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
                 
                 elif args.key_size == "192":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pyspeck_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1550,12 +1574,12 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 elif args.key_size == "256":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = pyspeck_decrypt_file(imdt_output, key, block_size)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1569,7 +1593,7 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("py-SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
@@ -1582,13 +1606,14 @@ def main():
             from cAscon_main import c_ascon_encrypt_file, c_ascon_decrypt_file
 
             for i in range(number_of_iterations):
+                print("\n-----------C-imp of ASCON | Iteration: ", i+1)
+                print("Encryption Metrics:")
                 if args.key_size == "128":
-                    print("You selected the C ASCON algorithm.")
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = c_ascon_encrypt_file(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_ascon_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1608,11 +1633,12 @@ def main():
                     
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
-        
+
+                print("\nDecryption Metrics:")
                 if args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = c_ascon_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_ascon_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1626,7 +1652,7 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("c-ASCON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("c-ASCON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
         
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
@@ -1637,14 +1663,16 @@ def main():
              
             sys.path.append('LW_Stream_Cipher/LWAE/Grain128a/c_imp/')
             from cGrain128a_main import c_grain128_encrypt_file, c_grain128_decrypt_file
-            for i in range(number_of_iterations):   
+
+            for i in range(number_of_iterations):
+                print("\n-----------C-imp of Grain-128a | Iteration: ", i+1)
+                print("Encryption Metrics:")
                 if args.key_size == "128":
-                    print("You selected the C Grain-128a algorithm.")
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput = c_grain128_encrypt_file(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_grain128_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1664,11 +1692,12 @@ def main():
                     
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
-        
+
+                print("\nDecryption Metrics:")
                 if args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = c_grain128_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_grain128_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1682,7 +1711,7 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("c-Grain-128a", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("c-Grain-128a", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
@@ -1694,14 +1723,16 @@ def main():
              
             sys.path.append('LW_Stream_Cipher/eSTREAM/HW_oriented/Mickey/c_imp')
             from cMickey_main import c_mickey_encrypt_file, c_mickey_decrypt_file
+
             for i in range(number_of_iterations):   
+                print("\n-----------C-imp of Mickey-v2 | Iteration: ", i+1)
+                print("Encryption Metrics:")
                 if args.key_size == "80":
-                    print("You selected the 80-bit key C Mickey-v2 algorithm.")
                     random_key_bits, random_bytes = generate_random_key(80)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput  = c_mickey_encrypt_file(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram  = c_mickey_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1721,11 +1752,12 @@ def main():
                     
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
-        
+
+                print("\nDecryption Metrics:")
                 if args.key_size == "80":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = c_mickey_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_mickey_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1739,7 +1771,7 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("c-MICKEY-80", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("c-MICKEY-80", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
@@ -1751,14 +1783,17 @@ def main():
              
             sys.path.append("LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp")
             from cTRivium_main import c_trivium_encrypt_file, c_trivium_decrypt_file
-            for i in range(number_of_iterations):   
+
+            for i in range(number_of_iterations):
+                print("\n-----------C-imp of Trivium | Iteration: ", i+1)  
+                print("Encryption Metrics:")
                 if args.key_size == "80":
                     print("You selected the 80-bit key C Trivium algorithm.")
                     random_key_bits, random_bytes = generate_random_key(80)
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput  = c_trivium_encrypt_file(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram  = c_trivium_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1778,11 +1813,12 @@ def main():
                     
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
-        
+
+                print("\nDecryption Metrics:")
                 if args.key_size == "80":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = c_trivium_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_trivium_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1796,7 +1832,7 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("c-Trivium-80", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("c-Trivium-80", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
@@ -1808,9 +1844,11 @@ def main():
              
             sys.path.append("LW_Stream_Cipher/eSTREAM/SW_oriented/Salsa/c_imp")
             from cSalsa_main import c_salsa_encrypt_file, c_salsa_decrypt_file
-            for i in range(number_of_iterations):   
+
+            for i in range(number_of_iterations):  
+                print("\n-----------C-imp of Salsa | Iteration: ", i+1) 
+                print("Encryption Metrics:")
                 if args.key_size == "128":
-                    print("You selected the 128-bit key C Salsa20 algorithm.")
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
@@ -1835,7 +1873,8 @@ def main():
                     
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
-        
+
+                print("\nDecryption Metrics:")        
                 if args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
@@ -1853,7 +1892,7 @@ def main():
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
                     os.remove('output.txt')
-                    save_to_csv("c-Salsa-128", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("c-Salsa-128", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
@@ -1864,9 +1903,11 @@ def main():
              
             sys.path.append("LW_Stream_Cipher/eSTREAM/SW_oriented/Sosemanuk/c_imp")
             from cSosemanuk_main import c_sosemanuk_encrypt_file, c_sosemanuk_decrypt_file
+
             for i in range(number_of_iterations):   
+                print("\n-----------C-imp of Sosemanuk | Iteration: ", i+1)
+                print("Encryption Metrics:")
                 if args.key_size == "128":
-                    print("You selected the 128-bit key C Sosemanuk algorithm.")
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
@@ -1891,7 +1932,8 @@ def main():
                     
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
-        
+
+                print("\nDecryption Metrics:")
                 if args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
@@ -1908,10 +1950,10 @@ def main():
                     cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
                     cycle_per_byte_dec = int(cycle_per_byte_dec)
                     print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
-                    save_to_csv("c-Sosemanuk-128", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec)
+                    save_to_csv("c-Sosemanuk-128", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
-                    
+
 if __name__ == "__main__":
     main()

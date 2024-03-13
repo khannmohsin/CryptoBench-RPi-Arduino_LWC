@@ -1,5 +1,6 @@
 import ctypes
 import time
+import psutil
 
 crypto_lib = ctypes.CDLL('LW_Stream_Cipher/LWAE/ASCON/c_imp/main.so')
 
@@ -72,12 +73,15 @@ def c_ascon_encrypt_file(plaintext, key):
     c_buffer = ctypes.create_string_buffer(len(m) + 16)  # Example buffer for ciphertext
     c_ptr = ctypes.cast(c_buffer, ctypes.POINTER(ctypes.c_ubyte))
 
-    start_time = time.perf_counter()
     # Call the function
+    start_time = time.perf_counter()
     result_encrypt = crypto_aead_encrypt(c_ptr, ctypes.byref(c_len), m_ptr, mlen, ad_ptr, adlen, nsec, npub_ptr, k_ptr)
-
     end_time = time.perf_counter()
+    Process = psutil.Process()
+    avg_ram = Process.memory_info().rss / 1024 / 1024
 
+    # ram_consumption = (end_ram - start_ram) / (1024 * 1024)
+    
     encryption_time = end_time - start_time
 
     if result_encrypt == 0:
@@ -85,14 +89,15 @@ def c_ascon_encrypt_file(plaintext, key):
         buffer_contents = ctypes.string_at(c_buffer, c_len.value)
 
         formatted_encryption_time = round(encryption_time, 2)
-
         print("Total encryption time:", formatted_encryption_time, "seconds")
 
         throughput = round(len_plaintext / encryption_time, 2)   # Throughput in Kbps
-
         print("Encryption Throughput:", throughput, "Kbps")
 
-        return buffer_contents, formatted_encryption_time, throughput
+        ram = round(avg_ram, 2)
+        print("Average memory usage:", ram, "MB")
+
+        return buffer_contents, formatted_encryption_time, throughput, ram
     else:
         print("Encryption failed!")
 
@@ -134,6 +139,9 @@ def c_ascon_decrypt_file(ciphertext, key):
 
     end_time = time.perf_counter()
 
+    Process = psutil.Process()
+    avg_ram = Process.memory_info().rss / 1024 / 1024
+
     decryption_time = end_time - start_time
 
     if result_decrypt == 0:
@@ -147,7 +155,11 @@ def c_ascon_decrypt_file(ciphertext, key):
         throughput = round(len_ciphertext / decryption_time, 2)   # Throughput in Kbps
 
         print("Decryption Throughput:", throughput)
-        return buffer_contents, formatted_decryption_time, throughput
+
+        ram = round(avg_ram, 2)
+        print("Average memory usage:", ram, "MB")
+
+        return buffer_contents, formatted_decryption_time, throughput, ram
 
     else:
         print("Decryption failed!")

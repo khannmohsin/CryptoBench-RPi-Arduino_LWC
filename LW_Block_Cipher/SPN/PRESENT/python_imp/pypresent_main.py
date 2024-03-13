@@ -1,6 +1,7 @@
 from pypresent import Present
 import sys
 import time
+import psutil
 
 if (len(sys.argv)>1):
 	text=str(sys.argv[1])
@@ -76,7 +77,7 @@ def pypresent_encrypt_file(plaintext, key):
     ciphertext = bytearray()
 
     total_encryption_time = 0
-
+    avg_memory_usage = []
     for i in range(0, len(plaintext), block_size):
         block = plaintext[i:i+block_size]
         if len(block) < block_size:
@@ -85,10 +86,10 @@ def pypresent_encrypt_file(plaintext, key):
         start_time = time.perf_counter()
         encrypted_block = cipher.encrypt(block)
         end_time = time.perf_counter()
-
+        Process = psutil.Process()
         encryption_time = end_time - start_time
-
         total_encryption_time += encryption_time
+        avg_memory_usage.append(Process.memory_info().rss / 1024 / 1024)  # Memory usage in MB
         ciphertext.extend(encrypted_block)
     # Format the total encryption time to two decimal places
     formatted_total_encryption_time = round(total_encryption_time, 2)
@@ -97,10 +98,12 @@ def pypresent_encrypt_file(plaintext, key):
     print("Total encryption time:", formatted_total_encryption_time, "seconds")
 
     throughput = round(file_size_Kb / total_encryption_time, 2)   # Throughput in Kbps
-
     print("Encryption Throughput:", throughput, "Kbps")
 
-    return ciphertext, formatted_total_encryption_time, throughput
+    ram = round(sum(avg_memory_usage) / len(avg_memory_usage), 2)
+    print("Average memory usage:", ram, "MB")
+
+    return ciphertext, formatted_total_encryption_time, throughput, ram
 	
 def pypresent_decrypt_file(ciphertext, key):
 
@@ -111,17 +114,17 @@ def pypresent_decrypt_file(ciphertext, key):
     block_size = 8
     plaintext = bytearray()
     total_decryption_time = 0
+    avg_memory_usage = []   
     for i in range(0, len(ciphertext), block_size):
         block = ciphertext[i:i+block_size]
 
         start_time = time.perf_counter()
         decrypted_block = cipher.decrypt(block)
-
         end_time = time.perf_counter()
-
+        Process = psutil.Process()
         decryption_time = end_time - start_time
-
         total_decryption_time += decryption_time
+        avg_memory_usage.append(Process.memory_info().rss / 1024 / 1024)
         plaintext.extend(decrypted_block)
 
     # Format the total encryption time to two decimal places
@@ -131,10 +134,12 @@ def pypresent_decrypt_file(ciphertext, key):
     print("Total decryption time:", formatted_total_decryption_time, "seconds")
 
     throughput = round(file_size_Kb / total_decryption_time, 2)   # Throughput in Kbps
-
     print("Decryption Throughput:", throughput, "Kbps")
 
-    return plaintext, formatted_total_decryption_time, throughput
+    ram = round(sum(avg_memory_usage) / len(avg_memory_usage), 2)
+    print("Average memory usage:", ram, "MB")
+
+    return plaintext, formatted_total_decryption_time, throughput, ram
 
 # text = Padding.appendPadding(text,blocksize=8,mode='EBC')
 # cipher = Present(key) 

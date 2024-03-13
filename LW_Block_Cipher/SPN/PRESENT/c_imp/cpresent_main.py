@@ -1,6 +1,7 @@
 import ctypes
 import secrets
 import time
+import psutil
 
 # Load the C library
 lib_crypto_present = ctypes.CDLL('LW_Block_Cipher/SPN/PRESENT/c_imp/present.so')
@@ -54,6 +55,7 @@ def c_present_encrypt_file_key_80(plaintext, key):
     # Encrypt the plaintext
     ciphertext = bytearray()
     total_encryption_time = 0
+    avg_memory_usage = []
     for i in range(0, len(plaintext), 8):
         block = plaintext[i:i+8]
         # Pad the last block if needed
@@ -67,22 +69,24 @@ def c_present_encrypt_file_key_80(plaintext, key):
         present_encrypt(block_array, roundKeys)
         end_time = time.perf_counter()
         encryption_time = end_time - start_time
+        Process = psutil.Process()
 
         total_encryption_time += encryption_time
-
+        avg_memory_usage.append(Process.memory_info().rss / 1024 / 1024)
         # Append the encrypted block to the ciphertext
         ciphertext.extend(block_array)
         
     # Format the total encryption time to two decimal places
     formatted_total_encryption_time = round(total_encryption_time, 2)
-
     # Print the formatted total encryption time
     print("Total encryption time:", formatted_total_encryption_time, "seconds")
 
     throughput = round(file_size_Kb / total_encryption_time, 2)   # Throughput in Kbps
-
     print("Encryption Throughput:", throughput, "Kbps")
-    return ciphertext, formatted_total_encryption_time, throughput
+
+    ram = round(sum(avg_memory_usage) / len(avg_memory_usage), 2)
+    print("Average memory usage:", ram, "MB")
+    return ciphertext, formatted_total_encryption_time, throughput, ram
 
 # Function to decrypt a file with a 80-bit key
 def c_present_decrypt_file_key_80(ciphertext, key):
@@ -103,7 +107,7 @@ def c_present_decrypt_file_key_80(ciphertext, key):
     # Decrypt the ciphertext
     plaintext = bytearray()
     total_decryption_time = 0
-
+    avg_memory_usage = []
     for i in range(0, len(ciphertext), 8):
         block = ciphertext[i:i+8]
         # Create ctypes array for the block
@@ -113,10 +117,10 @@ def c_present_decrypt_file_key_80(ciphertext, key):
         # Decrypt the block
         present_decrypt(block_array, roundKeys)
         end_time = time.perf_counter()
+        Process = psutil.Process()
         decrytion_time = end_time - start_time
-
         total_decryption_time += decrytion_time
-
+        avg_memory_usage.append(Process.memory_info().rss / 1024 / 1024)
         # Append the decrypted block to the plaintext
         plaintext.extend(block_array)
 
@@ -130,7 +134,10 @@ def c_present_decrypt_file_key_80(ciphertext, key):
 
     print("Decryption Throughput:", throughput, "Kbps")
 
-    return plaintext, formatted_total_decryption_time, throughput
+    ram = round(sum(avg_memory_usage) / len(avg_memory_usage), 2)
+    print("Average memory usage:", ram, "MB")
+
+    return plaintext, formatted_total_decryption_time, throughput, ram
 
 # --------------------------------------Function to encrypt a file with a 128-bit key--------------------------------------
 def c_present_encrypt_file_key_128(plaintext, key):
@@ -151,6 +158,7 @@ def c_present_encrypt_file_key_128(plaintext, key):
     total_encryption_time = 0
     # Encrypt the plaintext
     ciphertext = bytearray()
+    avg_memory_usage = []
     for i in range(0, len(plaintext), 8):
         block = plaintext[i:i+8]
         # Pad the last block if needed
@@ -160,16 +168,14 @@ def c_present_encrypt_file_key_128(plaintext, key):
         block_array = (ctypes.c_uint8 * len(block))(*block)
 
         start_time = time.perf_counter()
-
         # Encrypt the block
         present_encrypt(block_array, roundKeys)
-
         end_time = time.perf_counter()
-
+        Process = psutil.Process()
         encryption_time = end_time - start_time
-
         total_encryption_time += encryption_time
         # Append the encrypted block to the ciphertext
+        avg_memory_usage.append(Process.memory_info().rss / 1024 / 1024)
         ciphertext.extend(block_array)
 
     # Format the total encryption time to two decimal places
@@ -179,10 +185,12 @@ def c_present_encrypt_file_key_128(plaintext, key):
     print("Total encryption time:", formatted_total_encryption_time, "seconds")
 
     throughput = round(file_size_Kb / total_encryption_time, 2)   # Throughput in Kbps
-
     print("Encryption Throughput:", throughput, "Kbps")
 
-    return ciphertext, formatted_total_encryption_time, throughput
+    ram = round(sum(avg_memory_usage) / len(avg_memory_usage), 2)
+    print("Average memory usage:", ram, "MB")
+
+    return ciphertext, formatted_total_encryption_time, throughput, ram
 
 # Function to decrypt a file with a 128-bit key
 def c_present_decrypt_file_key_128(ciphertext, key):
@@ -203,6 +211,7 @@ def c_present_decrypt_file_key_128(ciphertext, key):
     # Decrypt the ciphertext
     plaintext = bytearray()
     total_decryption_time = 0
+    avg_memory_usage = []
     for i in range(0, len(ciphertext), 8):
         block = ciphertext[i:i+8]
         # Create ctypes array for the block
@@ -211,13 +220,12 @@ def c_present_decrypt_file_key_128(ciphertext, key):
         start_time = time.perf_counter()
         # Decrypt the block
         present_decrypt(block_array, roundKeys)
-
         end_time = time.perf_counter()
-
+        Process = psutil.Process()
         decryption_time = end_time - start_time
-
         total_decryption_time += decryption_time
-        # Append the decrypted block to the plaintext
+        avg_memory_usage.append(Process.memory_info().rss / 1024 / 1024)
+        # Append the decrypted block to the plaintex
         plaintext.extend(block_array)
 
     # Format the total encryption time to two decimal places
@@ -227,9 +235,11 @@ def c_present_decrypt_file_key_128(ciphertext, key):
     print("Total decryption time:", formatted_total_decryption_time, "seconds")
 
     throughput = round(file_size_Kb / total_decryption_time, 2)   # Throughput in Kbps
-
     print("Decryption Throughput:", throughput, "Kbps")
 
-    return plaintext, formatted_total_decryption_time, throughput
+    ram = round(sum(avg_memory_usage) / len(avg_memory_usage), 2)
+    print("Average memory usage:", ram, "MB")
+
+    return plaintext, formatted_total_decryption_time, throughput, ram
 
 

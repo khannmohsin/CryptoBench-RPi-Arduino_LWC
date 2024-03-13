@@ -1,7 +1,7 @@
 from XTEA import XTEA
 import sys 
 import time
-
+import psutil
 
 def appendPadding(block, blocksize, mode):
     """Append padding to the block.
@@ -64,20 +64,19 @@ def pyxtea_encrypt_file(plaintext, key):
     block_size = 8
     ciphertext = bytearray()
     total_encryption_time = 0
+    avg_memory_usage = []
     for i in range(0, len(plaintext), block_size):
         block = plaintext[i:i+block_size]
         if len(block) < block_size:
             block = appendPadding(block, blocksize=block_size, mode='EBC')
         
         start_time = time.perf_counter()
-
         encrypted_block = cipher.xtea_encrypt(key, block)
-
         end_time = time.perf_counter()
-
+        Process = psutil.Process()
         encryption_time = end_time - start_time
-
         total_encryption_time += encryption_time
+        avg_memory_usage.append(Process.memory_info().rss / 1024 / 1024)  # Memory usage in MB
         ciphertext.extend(encrypted_block)
 
     formatted_total_encryption_time = round(total_encryption_time, 2)
@@ -88,7 +87,10 @@ def pyxtea_encrypt_file(plaintext, key):
 
     print("Encryption Throughput:", throughput, "Kbps")
 
-    return ciphertext, formatted_total_encryption_time, throughput
+    ram = round(sum(avg_memory_usage) / len(avg_memory_usage), 2)
+    print("Average memory usage:", ram, "MB")
+
+    return ciphertext, formatted_total_encryption_time, throughput, ram
 	
 def pyxtea_decrypt_file(ciphertext, key):
 
@@ -100,18 +102,17 @@ def pyxtea_decrypt_file(ciphertext, key):
     plaintext = bytearray()
 
     total_decryption_time = 0
+    avg_memory_usage = []
     for i in range(0, len(ciphertext), block_size):
         block = ciphertext[i:i+block_size]
 
         start_time = time.perf_counter()
-
         decrypted_block = cipher.xtea_decrypt(key, block)
-
         end_time = time.perf_counter()
-
+        Process = psutil.Process()
         decryption_time = end_time - start_time
-
         total_decryption_time += decryption_time
+        avg_memory_usage.append(Process.memory_info().rss / 1024 / 1024)
         plaintext.extend(decrypted_block)
 
     formatted_total_decrypted_time = round(total_decryption_time, 2)
@@ -119,7 +120,9 @@ def pyxtea_decrypt_file(ciphertext, key):
     print("Total encryption time:", formatted_total_decrypted_time, "seconds")
 
     throughput = round(file_size_Kb / total_decryption_time, 2)   # Throughput in Kbps
-
     print("Encryption Throughput:", throughput, "Kbps")
 
-    return plaintext, formatted_total_decrypted_time, throughput
+    ram = round(sum(avg_memory_usage) / len(avg_memory_usage), 2)
+    print("Average memory usage:", ram, "MB")
+
+    return plaintext, formatted_total_decrypted_time, throughput, ram 

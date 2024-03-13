@@ -1,5 +1,6 @@
 import ctypes
 import time
+import psutil
 
 clefia_lib = ctypes.CDLL('LW_Block_Cipher/GFN/CLEFIA/c_imp/clefia_ref.so')
 
@@ -68,6 +69,7 @@ def cClefia_encrypt_file(plaintext, key):
     ciphertext = bytearray()
 
     total_encryption_time = 0
+    avg_memory_usage = []
     for i in range(0, len(plaintext), 16):
         block = plaintext[i:i+16]
         # Pad the last block if needed
@@ -75,17 +77,15 @@ def cClefia_encrypt_file(plaintext, key):
             block += bytes(16 - len(block))
         # Create ctypes array for the block
         block_array = (ctypes.c_ubyte * len(block))(*block)
-
         start_time = time.perf_counter()
         # Encryption
         ClefiaEncrypt(ct, block_array, rk, key_size)
-
         end_time = time.perf_counter()
-
+        Process = psutil.Process()
         encryption_time = end_time - start_time
-
         total_encryption_time += encryption_time
         # Append the encrypted block to the ciphertext
+        avg_memory_usage.append(Process.memory_info().rss / 1024 / 1024)
         ciphertext.extend(ct)
     # Format the total encryption time to two decimal places
     formatted_total_encryption_time = round(total_encryption_time, 2)
@@ -94,10 +94,12 @@ def cClefia_encrypt_file(plaintext, key):
     print("Total encryption time:", formatted_total_encryption_time, "seconds")
 
     throughput = round(file_size_Kb / total_encryption_time, 2)   # Throughput in Kbps
-
     print("Encryption Throughput:", throughput, "Kbps")
 
-    return ciphertext, formatted_total_encryption_time, throughput
+    ram = round(sum(avg_memory_usage) / len(avg_memory_usage), 2)
+    print("Average memory usage:", ram, "MB")
+
+    return ciphertext, formatted_total_encryption_time, throughput, ram
 
 
 def cClefia_decrypt_file(ciphertext, key):
@@ -125,21 +127,20 @@ def cClefia_decrypt_file(ciphertext, key):
     plaintext = bytearray()
 
     total_decryption_time = 0
+    avg_memory_usage = []
     for i in range(0, len(ciphertext), 16):
         block = ciphertext[i:i+16]
         # Create ctypes array for the block
         block_array = (ctypes.c_ubyte * len(block))(*block)
-
         start_time = time.perf_counter()
         # Decryption
         ClefiaDecrypt(pt, block_array, rk, key_size)
-
         end_time = time.perf_counter()
-
+        Process = psutil.Process()
         decryption_time = end_time - start_time
-
         total_decryption_time += decryption_time
         # Append the decrypted block to the plaintext
+        avg_memory_usage.append(Process.memory_info().rss / 1024 / 1024)
         plaintext.extend(pt)
 
     # Format the total encryption time to two decimal places
@@ -149,9 +150,12 @@ def cClefia_decrypt_file(ciphertext, key):
     print("Total decryption time:", formatted_total_decryption_time, "seconds")
 
     throughput = round(file_size_Kb / total_decryption_time, 2)   # Throughput in Kbps
-
     print("Decryption Throughput:", throughput, "Kbps")
-    return plaintext, formatted_total_decryption_time, throughput
+
+    ram = round(sum(avg_memory_usage) / len(avg_memory_usage), 2)
+    print("Average memory usage:", ram, "MB")
+
+    return plaintext, formatted_total_decryption_time, throughput, ram
 
 # # Main function to replicate the C program
 # def main():

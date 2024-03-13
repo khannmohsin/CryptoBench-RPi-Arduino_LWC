@@ -1,5 +1,6 @@
 import ctypes
 import time
+import psutil
 
 crypto_lib = ctypes.CDLL('LW_Stream_Cipher/LWAE/Grain128a/c_imp/grain128aead_32p.so')
 
@@ -78,6 +79,9 @@ def c_grain128_encrypt_file(plaintext, key):
 
     end_time = time.perf_counter()
 
+    Process = psutil.Process()
+    avg_ram = Process.memory_info().rss / 1024 / 1024
+
     encryption_time = end_time - start_time
 
     if result_encrypt == 0:
@@ -92,7 +96,10 @@ def c_grain128_encrypt_file(plaintext, key):
 
         print("Encryption Throughput:", throughput, "Kbps")
 
-        return buffer_contents, formatted_encryption_time, throughput
+        ram = round(avg_ram, 2)
+        print("Average memory usage:", ram, "MB")
+
+        return buffer_contents, formatted_encryption_time, throughput, ram 
     else:
         print("Encryption failed!")
 
@@ -133,6 +140,8 @@ def c_grain128_decrypt_file(ciphertext, key):
     result_decrypt = crypto_aead_decrypt(m_ptr, ctypes.byref(m_len), nsec, ciphertext_ptr, clen, ad_ptr, adlen, npub_ptr, k_ptr)
 
     end_time = time.perf_counter()
+    Process = psutil.Process()
+    avg_ram = Process.memory_info().rss / 1024 / 1024
 
     decryption_time = end_time - start_time
     if result_decrypt == 0:
@@ -146,7 +155,11 @@ def c_grain128_decrypt_file(ciphertext, key):
         throughput = round(len_ciphertext / decryption_time, 2)   # Throughput in Kbps
 
         print("Decryption Throughput:", throughput)
-        return buffer_contents, formatted_decryption_time, throughput
+
+        ram = round(avg_ram, 2)
+        print("Average memory usage:", ram, "MB")
+
+        return buffer_contents, formatted_decryption_time, throughput, ram 
 
     else:
         print("Decryption failed!")
