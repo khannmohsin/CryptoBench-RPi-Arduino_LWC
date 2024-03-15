@@ -1853,7 +1853,7 @@ def main():
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput  = c_salsa_encrypt_file(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram  = c_salsa_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1878,7 +1878,7 @@ def main():
                 if args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = c_salsa_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_salsa_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1912,7 +1912,7 @@ def main():
                     key = random_bytes
                     cycle_count_enc = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    imdt_output, enc_time, enc_throughput  = c_sosemanuk_encrypt_file(plaintext, key)
+                    imdt_output, enc_time, enc_throughput, enc_ram  = c_sosemanuk_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
@@ -1937,7 +1937,7 @@ def main():
                 if args.key_size == "128":
                     cycle_count_dec = []
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
-                    decrypted_output, dec_time, dec_throughput = c_sosemanuk_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_sosemanuk_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:

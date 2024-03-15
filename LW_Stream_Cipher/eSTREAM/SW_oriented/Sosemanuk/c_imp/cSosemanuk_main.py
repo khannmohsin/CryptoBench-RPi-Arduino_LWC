@@ -81,8 +81,10 @@ def c_sosemanuk_decrypt_file(ciphertext, key):
 
     len_ciphertext = len(ciphertext)
     ctx = ECRYPT_ctx()
+
     key = (u8 * 16)(*key)
     iv = (u8 * 16)(11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26)  # Example IV
+    
     ECRYPT_keysetup(ctypes.byref(ctx), key, 128, 128)
     ECRYPT_ivsetup(ctypes.byref(ctx), iv)
 

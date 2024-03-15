@@ -134,4 +134,4 @@ def pyaes_decrypt_file(ciphertext, key, block_size):
     ram = round(sum(avg_memory_usage) / len(avg_memory_usage), 2)
     print("Average memory usage:", ram, "MB")
 
-    return plaintext, formatted_total_decryption_time, throughput
+    return plaintext, formatted_total_decryption_time, throughput, ram
