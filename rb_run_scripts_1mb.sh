@@ -26,11 +26,15 @@ python3 rb_main.py clefia 256 Files/Crypto_input/photo/oneMB_photo.jpg 128
 
 # -----------------C Implementation of Ascon CIPHER -----------------
 
-python3 rb_main.py ascon 128 Files/Crypto_input/photo/oneMB_photo.jpg -
+# python3 rb_main.py ascon 128 Files/Crypto_input/photo/oneMB_photo.jpg -
 
 # -----------------C Implementation of Grain128a CIPHER -----------------
 
 python3 rb_main.py grain-128a 128 Files/Crypto_input/photo/oneMB_photo.jpg -
+
+# -----------------C Implementation of Grain-v1 CIPHER -----------------
+
+python3 rb_main.py grain-v1 80 Files/Crypto_input/photo/oneMB_photo.jpg -
 
 # -----------------C Implementation of Mickey-v2 CIPHER -----------------
 

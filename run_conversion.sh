@@ -15,7 +15,10 @@ gcc -fPIC -shared -o LW_Block_Cipher/GFN/CLEFIA/c_imp/clefia_ref.so LW_Block_Cip
 # -----------------C compilation of ASCON CIPHER -----------------
 #gcc -fPIC -shared -o LW_Stream_Cipher/LWAE/ASCON/c_imp/main.so LW_Stream_Cipher/LWAE/ASCON/c_imp/main.c
 
-# -----------------C compilation of GRAIN CIPHER -----------------
+# -----------------C compilation of GRAIN-v1 CIPHER -----------------
+gcc -fPIC -shared -o LW_Stream_Cipher/eSTREAM/HW_oriented/Grain/c_imp/grain.so LW_Stream_Cipher/eSTREAM/HW_oriented/Grain/c_imp/grain.c
+
+# -----------------C compilation of GRAIN-128 CIPHER -----------------
 gcc -fPIC -shared -o LW_Stream_Cipher/LWAE/Grain128a/c_imp/grain128aead_32p.so LW_Stream_Cipher/LWAE/Grain128a/c_imp/grain128aead_32p.c
 
 # -----------------C compilation of MICKEY CIPHER -----------------

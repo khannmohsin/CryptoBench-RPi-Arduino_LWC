@@ -315,7 +315,7 @@ def main():
                 print("\nDecryption Metrics:")
 
                 if args.key_size == "128":
-                    decrypted_output, dec_time, dec_throughput, dec_throughput, dec_ram = pyxtea_decrypt_file(imdt_output, key)
+                    decrypted_output, dec_time, dec_throughput, dec_ram = pyxtea_decrypt_file(imdt_output, key)
                     save_to_csv("py-XTEA", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
