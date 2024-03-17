@@ -76,13 +76,13 @@ def update_csv_data(filename, algorithm, block_size, key_size, value):
 
 def main():
     parser = argparse.ArgumentParser(description="Encrypt/Decrypt files using different cryptographic algorithms")
-    parser.add_argument("algorithm", help="The cryptographic algorithm to use", choices=["aes", "py-aes", "present", "py-present", "py-xtea", "clefia", "py-simon", "py-speck", "ascon" , "grain-128a", "mickey", "trivium", "salsa", "sosemanuk"])
+    parser.add_argument("algorithm", help="The cryptographic algorithm to use", choices=["aes", "py-aes", "present", "py-present", "py-xtea", "clefia", "py-simon", "py-speck", "ascon" , "grain-128a", "mickey", "trivium", "salsa", "sosemanuk", "py-rabbit", "grain-v1"])
     parser.add_argument("key_size", help="The size of the key to use", choices=["64", "80", "96", "128", "192", "256"])
     parser.add_argument("file_path", help="The path to the file to encrypt/decrypt")
     parser.add_argument("block_size", help="The size of the block to use (optional)", choices=["32", "48", "64", "96","128", "-"], default="64")
     args = parser.parse_args()
 
-    number_of_iterations = 10
+    number_of_iterations = 20
 
     file_size_mb = round(os.path.getsize(args.file_path) / (1024 * 1024), 2)
     print("\n-----------------------------------------------------------------------------------------------------------")
@@ -828,7 +828,7 @@ def main():
                 print("\nDecryption Metrics: ")
                 if args.key_size == "128":
                     decrypted_output, dec_time, dec_throughput, dec_ram = c_salsa_decrypt_file(imdt_output, key)
-                    save_to_csv("c-Salsa-128", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, enc_ram, dec_ram)
+                    #save_to_csv("c-Salsa-128", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, enc_ram, dec_ram)
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
@@ -863,6 +863,66 @@ def main():
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
 
+
+
+#------------------------------------------ Python IMP OF Rabbit CIPHER ------------------------------------------
+
+    if args.algorithm == "py-rabbit":
+             
+            sys.path.append("LW_Stream_Cipher/eSTREAM/SW_oriented/Rabbit/python_imp")
+            from pyrabbit_main import py_rabbit_encrypt_file, py_rabbit_decrypt_file
+
+            for i in range(number_of_iterations):   
+                print("----------------Python-imp of Rabbit | Iteration: ", i+1)
+                print("Encryption Metrics: ")
+                if args.key_size == "128":
+                    print("You selected the 128-bit key Python Rabbit algorithm.")
+                    random_key_bits, random_bytes = generate_random_key(128)
+                    key = random_bytes
+                    imdt_output, enc_time, enc_throughput, enc_ram  = py_rabbit_encrypt_file(plaintext, key)
+
+                else:
+                    print("--------------Invalid key size for the Python Rabbit algorithm.--------------")
+                    
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+
+                print("\nDecryption Metrics: ")
+                if args.key_size == "128":
+                    decrypted_output, dec_time, dec_throughput, dec_ram = py_rabbit_decrypt_file(imdt_output, key)
+                    save_to_csv("py-Rabbit-128", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, enc_ram, dec_ram)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+
+#------------------------------------------ C IMP OF Grain-v1 CIPHER ------------------------------------------
+
+    if args.algorithm == "grain-v1":
+             
+            sys.path.append('LW_Stream_Cipher/eSTREAM/HW_oriented/Grain/c_imp')
+            from cGrain_main import c_grain_v1_encrypt_file, c_grain_v1_decrypt_file
+
+            for i in range(number_of_iterations): 
+                print("----------------C-imp of Grain-v1 | Iteration: ", i+1)  
+                print("Encryption Metrics: ")
+                if args.key_size == "80":
+                    random_key_bits, random_bytes = generate_random_key(80)
+                    key = random_bytes
+                    imdt_output, enc_time, enc_throughput, enc_ram  = c_grain_v1_encrypt_file(plaintext, key)
+
+                else:
+                    print("--------------Invalid key size for the C Grain-v1 algorithm.--------------")
+                    
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+
+                print("\nDecryption Metrics: ")   
+                if args.key_size == "80":
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_grain_v1_decrypt_file(imdt_output, key)
+                    save_to_csv("c-Grain-v1", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, enc_ram, dec_ram)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
 
 
 

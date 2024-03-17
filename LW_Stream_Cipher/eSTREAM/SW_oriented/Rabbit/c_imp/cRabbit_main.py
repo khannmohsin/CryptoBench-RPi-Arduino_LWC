@@ -36,8 +36,7 @@ ECRYPT_process_bytes.restype = None
 ECRYPT_init()
 
 # Encryption function
-def c_trivium_encrypt_file(plaintext, key):
-    len_plaintext = len(plaintext)
+def c_rabbit_encrypt_file(plaintext, key):
     ctx = ECRYPT_ctx()
     key = (u8 * 16)(*key)
     iv = (u8 * 10)(11, 12, 13, 14, 15, 16, 17, 18, 19, 20)  # Example IV
@@ -45,7 +44,7 @@ def c_trivium_encrypt_file(plaintext, key):
     ECRYPT_ivsetup(ctypes.byref(ctx), iv)
 
     ciphertext = bytearray(len(plaintext))
-    ECRYPT_process_bytes(1, ctypes.byref(ctx), plaintext, ciphertext, len(plaintext))
+    ECRYPT_process_bytes(0, ctypes.byref(ctx), plaintext, ciphertext, len(plaintext))
 
     for i in range(len(plaintext)):
         ciphertext[i] = plaintext[i] ^ ciphertext[i]    

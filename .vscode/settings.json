@@ -42,6 +42,8 @@
         "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp/ ",
         "./LW_Stream_Cipher/eSTREAM/HW_oriented/Trivium/c_imp",
         "./LW_Stream_Cipher/eSTREAM/SW_oriented/Salsa/c_imp",
-        "./LW_Stream_Cipher/eSTREAM/SW_oriented/Sosemanuk/c_imp"
+        "./LW_Stream_Cipher/eSTREAM/SW_oriented/Sosemanuk/c_imp",
+        "./LW_Stream_Cipher/eSTREAM/SW_oriented/Rabbit/python_imp",
+        "./LW_Stream_Cipher/eSTREAM/HW_oriented/Grain/c_imp"
     ]
 }

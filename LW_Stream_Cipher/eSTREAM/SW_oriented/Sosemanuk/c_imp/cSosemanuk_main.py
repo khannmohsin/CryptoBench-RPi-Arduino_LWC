@@ -1,7 +1,7 @@
 import ctypes
 import time
 import psutil
-
+import os
 
 # Load the shared library
 lib = ctypes.CDLL("LW_Stream_Cipher/eSTREAM/SW_oriented/Sosemanuk/c_imp/sosemanuk.so")  # Change the filename accordingly
@@ -9,43 +9,38 @@ lib = ctypes.CDLL("LW_Stream_Cipher/eSTREAM/SW_oriented/Sosemanuk/c_imp/sosemanu
 u8 = ctypes.c_uint8
 u32 = ctypes.c_uint32
 
-# Define the ECRYPT_ctx structure
 class ECRYPT_ctx(ctypes.Structure):
-    _fields_ = [("key", u8 * 16),
-                ("s", u32 * 13),
-                ("keylen", u32),
-                ("ivlen", u32)]
+    _fields_ = [("sk", ctypes.c_uint32 * 140), ("ivlen", ctypes.c_size_t)]
 
 # Define function prototypes
 # Define function prototypes
 ECRYPT_init = lib.ECRYPT_init
 ECRYPT_init.argtypes = []
-ECRYPT_init.restype = None
+#ECRYPT_init.restype = None
 
 
 ECRYPT_keysetup = lib.ECRYPT_keysetup
 ECRYPT_keysetup.argtypes = [ctypes.POINTER(ECRYPT_ctx), ctypes.POINTER(u8), u32, u32]
-ECRYPT_keysetup.restype = None
+#ECRYPT_keysetup.restype = None
 
 ECRYPT_ivsetup = lib.ECRYPT_ivsetup
 ECRYPT_ivsetup.argtypes = [ctypes.POINTER(ECRYPT_ctx), ctypes.POINTER(u8)]
-ECRYPT_ivsetup.restype = None
+#ECRYPT_ivsetup.restype = None
 
 ECRYPT_process_bytes = lib.ECRYPT_process_bytes
 ECRYPT_process_bytes.argtypes = [ctypes.c_int, ctypes.POINTER(ECRYPT_ctx), ctypes.POINTER(u8), ctypes.POINTER(u8), u32]
-ECRYPT_process_bytes.restype = None
+#ECRYPT_process_bytes.restype = None
 
 # Initialize the library
-ECRYPT_init()
-
+#ECRYPT_init()
 # Define encryption and decryption functions
 def c_sosemanuk_encrypt_file(plaintext, key):
-
-    len_plaintext = len(plaintext)
     ctx = ECRYPT_ctx()
+    len_plaintext = len(plaintext)
 
     key = (u8 * 16)(*key)
     iv = (u8 * 16)(11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26)  # Example IV
+    
     ECRYPT_keysetup(ctypes.byref(ctx), key, 128, 128)
     ECRYPT_ivsetup(ctypes.byref(ctx), iv)
 
@@ -78,9 +73,9 @@ def c_sosemanuk_encrypt_file(plaintext, key):
 
 
 def c_sosemanuk_decrypt_file(ciphertext, key):
+    ctx = ECRYPT_ctx()
 
     len_ciphertext = len(ciphertext)
-    ctx = ECRYPT_ctx()
 
     key = (u8 * 16)(*key)
     iv = (u8 * 16)(11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26)  # Example IV
@@ -113,5 +108,5 @@ def c_sosemanuk_decrypt_file(ciphertext, key):
     ram = round(avg_ram, 2)
     print("Average memory usage:", ram, "MB")
 
+    
     return plaintext, formatted_decryption_time, throughput, ram
-
