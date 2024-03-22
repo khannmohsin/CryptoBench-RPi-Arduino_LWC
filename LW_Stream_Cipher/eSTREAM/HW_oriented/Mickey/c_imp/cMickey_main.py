@@ -44,6 +44,8 @@ ECRYPT_init()
 def c_mickey_encrypt_file(plaintext, key):
 
     len_plaintext = len(plaintext)
+    file_size_Kb = len_plaintext * 8 / 1000  # File size in Kilobits
+
     ctx = ECRYPT_ctx()
     key = (u8 * 10)(*key)
     iv = (u8 * 16)(11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26)  # Example IV
@@ -68,7 +70,7 @@ def c_mickey_encrypt_file(plaintext, key):
     formatted_encryption_time = round(encryption_time, 2)
     print("Total encryption time:", formatted_encryption_time, "seconds")
 
-    throughput = round(len_plaintext / encryption_time, 2)   # Throughput in Kbps
+    throughput = round(file_size_Kb / encryption_time, 2)   # Throughput in Kbps
     print("Encryption Throughput:", throughput, "Kbps")
 
     ram = round(avg_ram, 2)
@@ -80,6 +82,7 @@ def c_mickey_encrypt_file(plaintext, key):
 def c_mickey_decrypt_file(ciphertext, key):
 
     len_ciphertext = len(ciphertext)
+    file_size_Kb = len_ciphertext * 8 / 1000  # File size in Kilobits
 
     ctx = ECRYPT_ctx()
     key = (u8 * 10)(*key)
@@ -108,7 +111,7 @@ def c_mickey_decrypt_file(ciphertext, key):
 
     print("Total decryption time:", formatted_decryption_time, "seconds")
 
-    throughput = round(len_ciphertext / decryption_time, 2)   # Throughput in Kbps
+    throughput = round(file_size_Kb / decryption_time, 2)   # Throughput in Kbps
     print("Decryption Throughput:", throughput, "Kbps")
 
     ram = round(avg_ram, 2)

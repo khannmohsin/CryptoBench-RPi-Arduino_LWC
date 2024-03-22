@@ -82,7 +82,7 @@ def main():
     parser.add_argument("block_size", help="The size of the block to use (optional)", choices=["32", "48", "64", "96","128", "-"], default="64")
     args = parser.parse_args()
 
-    number_of_iterations = 5
+    number_of_iterations = 1
 
     file_size_mb = round(os.path.getsize(args.file_path) / (1024 * 1024), 2)
     print("\n-----------------------------------------------------------------------------------------------------------")

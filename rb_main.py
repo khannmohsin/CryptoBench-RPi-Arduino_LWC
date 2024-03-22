@@ -108,13 +108,13 @@ def update_csv_data(filename, algorithm, block_size, key_size, value):
 
 def main():
     parser = argparse.ArgumentParser(description="Encrypt/Decrypt files using different cryptographic algorithms")
-    parser.add_argument("algorithm", help="The cryptographic algorithm to use", choices=["aes", "py-aes", "present", "py-present", "py-xtea", "clefia", "py-simon", "py-speck", "ascon" , "grain-128a", "mickey", "trivium", "salsa", "sosemanuk"])
+    parser.add_argument("algorithm", help="The cryptographic algorithm to use", choices=["aes", "py-aes", "present", "py-present", "py-xtea", "clefia", "py-simon", "py-speck", "ascon" , "grain-128a", "mickey", "trivium", "salsa", "sosemanuk", "grain-v1"])
     parser.add_argument("key_size", help="The size of the key to use", choices=["64", "80", "96", "128", "192", "256"])
     parser.add_argument("file_path", help="The path to the file to encrypt/decrypt")
     parser.add_argument("block_size", help="The size of the block to use (optional)", choices=["32", "48", "64", "96","128", "-"], default="64")
     args = parser.parse_args()
 
-    number_of_iterations = 5
+    number_of_iterations = 1
 
     file_size_mb = round(os.path.getsize(args.file_path) / (1024 * 1024), 2)
     print("\n----------------------------------------------------------------------------------------------------------")
@@ -1954,6 +1954,69 @@ def main():
 
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
+
+#------------------------------------------ C IMP OF Grain-v1 CIPHER ------------------------------------------
+    if args.algorithm == "grain-v1":
+                 
+                sys.path.append("LW_Stream_Cipher/eSTREAM/HW_oriented/Grain/c_imp")
+                from cGrain_main import c_grain_v1_encrypt_file, c_grain_v1_decrypt_file
+    
+                for i in range(number_of_iterations):   
+                    print("\n-----------C-imp of Grain-v1 | Iteration: ", i+1)
+                    print("Encryption Metrics:")
+                    if args.key_size == "80":
+                        random_key_bits, random_bytes = generate_random_key(80)
+                        key = random_bytes
+                        cycle_count_enc = []
+                        bcmticks_process = subprocess.Popen(["./first_cycles"])
+                        imdt_output, enc_time, enc_throughput, enc_ram  = c_grain_v1_encrypt_file(plaintext, key)
+                        bcmticks_process.terminate()
+                        os.system(f"kill -9 {bcmticks_process.pid}")
+                        with open ('output.txt', 'r') as file:
+                            lines = file.readlines()
+                        for line in lines:
+                            line = line.strip()
+                            cycle_count_enc.append(int(line))
+    
+                        cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
+                        cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                        cycle_per_byte_enc = int(cycle_per_byte_enc)
+                        print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
+                        os.remove('output.txt')
+    
+                    else:
+                        print("--------------Invalid key size for the C Grain-v1 algorithm.--------------")
+                        
+                    with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                            file.write(imdt_output)
+    
+                    print("\nDecryption Metrics:")
+                    if args.key_size == "80":
+                        cycle_count_dec = []
+                        bcmticks_process = subprocess.Popen(["./first_cycles"])
+                        decrypted_output, dec_time, dec_throughput, dec_ram = c_grain_v1_decrypt_file(imdt_output, key)
+                        bcmticks_process.terminate()
+                        os.system(f"kill -9 {bcmticks_process.pid}")
+                        with open ('output.txt', 'r') as file:
+                            lines = file.readlines()
+                        for line in lines:
+                            line = line.strip()
+                            cycle_count_dec.append(int(line))
+    
+                        cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
+                        cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+
+                        cycle_per_byte_dec = int(cycle_per_byte_dec)
+
+                        print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
+
+                        os.remove('output.txt')
+
+                        save_to_csv("c-Grain-v1-80", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
+
+                    with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                        file.write(decrypted_output)
+                        
 
 if __name__ == "__main__":
     main()

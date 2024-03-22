@@ -56,8 +56,9 @@ def detectPadding(block, mode):
 def pyaes_encrypt_file(plaintext, key, block_size):
 
     len_key = len(key)
-    len_plaintext = len(plaintext)
-    
+    file_size = len(plaintext)
+    file_size_Kb = file_size * 8 / 1000  # File size in Kilobits
+
     ksize = len(key)*8
     bsize = int(block_size)
     aes = AES(key)
@@ -87,7 +88,7 @@ def pyaes_encrypt_file(plaintext, key, block_size):
 
     print("Total encryption time:", formatted_total_encryption_time, "seconds")
 
-    throughput = round(len_plaintext / total_encryption_time, 2)   # Throughput in Kbps
+    throughput = round(file_size_Kb / total_encryption_time, 2)   # Throughput in Kbps
 
     print("Encryption Throughput:", throughput, "Kbps")
 
@@ -100,6 +101,8 @@ def pyaes_encrypt_file(plaintext, key, block_size):
 def pyaes_decrypt_file(ciphertext, key, block_size):
 
     len_ciphertext = len(ciphertext)
+    file_size_Kb = len_ciphertext * 8 / 1000  # File size in Kilobits
+
     bsize = int(block_size)
     block_size = int(bsize/8)
     aes = AES(key)
@@ -127,7 +130,7 @@ def pyaes_decrypt_file(ciphertext, key, block_size):
 
     print("Total decryption time:", formatted_total_decryption_time, "seconds")
 
-    throughput = round(len_ciphertext / total_decryption_time, 2)   # Throughput in Kbps
+    throughput = round(file_size_Kb / total_decryption_time, 2)   # Throughput in Kbps
 
     print("Decryption Throughput:", throughput, "Kbps")
 

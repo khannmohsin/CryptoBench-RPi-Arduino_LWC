@@ -83,18 +83,13 @@ for sublist in trimmed_values_list:
     confidence_interval_list.append(confidence_interval)
 
 
-# print(mean_list)
-# # print(std_dev_list)
-# print(confidence_interval_list)
+print(mean_list)
+# print(std_dev_list)
+print(confidence_interval_list)
 
-# print(mean_list)
+print(mean_list)
 plt.figure(figsize=(12, 8))
 plt.xlabel('Ciphers')
-# print(f"The merged list is {merged_list}")
-# print(f"The mean list is {mean_list}")
-for item1, item2 in zip(merged_list, mean_list):
-    print(f"{item1} :-> {round(item2/1000, 2)} Mbps")
-
 plt.bar(merged_list, mean_list, yerr=confidence_interval_list, capsize=4, color='turquoise', ecolor='black')
 
 
@@ -113,7 +108,7 @@ elif "decryption_time" in file_name:
 
 elif "encryption_throughput" in file_name:
     for i, value in enumerate(mean_list):
-        plt.text(i, value,  "   "  + str(value), ha = 'center', va = 'bottom', rotation=90)
+        plt.text(i, value,  "  "  + str(value), ha = 'center', va = 'bottom', rotation=90)
     plt.yscale('log')
     print("Encryption Throughput")
     plt.ylabel('Throughput (Kbps)')
@@ -130,15 +125,30 @@ elif "decryption_throughput" in file_name:
 elif "encryption_RAM" in file_name:
     # for i, value in enumerate(mean_list):
     #     plt.text(i, value,  "  "  + str(value), ha = 'center', va = 'bottom', rotation=90)
-    #plt.yscale('log')
+    plt.yscale('log')
     plt.ylabel('RAM (MB)')
     plt.title('Average Encryption Memory Usage of the Ciphers')
 
 elif "decryption_RAM" in file_name:
     # for i, value in enumerate(mean_list):
     #     plt.text(i, value,  "  "  + str(value), ha = 'center', va = 'bottom', rotation=90)
+    plt.yscale('log')
     plt.ylabel('RAM (MB)')
     plt.title('Average Decryption Memory Usage of the Ciphers')
+
+elif "encryption_CpB" in file_name:
+    # for i, value in enumerate(mean_list):
+    #     plt.text(i, value,  "  "  + str(value), ha = 'center', va = 'bottom', rotation=90)
+    plt.yscale('log')
+    plt.ylabel('Cycle per byte (CpB)')
+    plt.title('Average Encryption CpB of the Ciphers')
+
+elif "decryption_CpB" in file_name:
+    # for i, value in enumerate(mean_list):
+    #     plt.text(i, value,  "  "  + str(value), ha = 'center', va = 'bottom', rotation=90)
+    plt.yscale('log')
+    plt.ylabel('Cycle per byte (CpB)')
+    plt.title('Average Decryption CpB of the Ciphers')
 
 plt.legend()
 plt.tight_layout()

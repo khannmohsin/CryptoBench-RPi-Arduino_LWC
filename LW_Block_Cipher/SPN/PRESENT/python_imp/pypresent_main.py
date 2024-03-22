@@ -10,12 +10,6 @@ if (len(sys.argv)>1):
 if (len(sys.argv)>2):
 	k=str(sys.argv[2])
 
-# print ('Text:\t'+text)
-# print ('Key:\t'+k)
-# print ('--------')
-# print
-# key = bytes.fromhex(k)
-
 def appendPadding(block, blocksize, mode):
     """Append padding to the block.
 
@@ -141,20 +135,4 @@ def pypresent_decrypt_file(ciphertext, key):
 
     return plaintext, formatted_total_decryption_time, throughput, ram
 
-# text = Padding.appendPadding(text,blocksize=8,mode='EBC')
-# cipher = Present(key) 
-# start=time.perf_counter()
-# encrypted = cipher.encrypt(text.encode())
-# end=time.perf_counter()
-# print ("Encrypt time: ",(end-start))
-# print ('Cipher:\t\t'+encrypted.hex())
-
-# start=time.perf_counter()
-# decrypted = cipher.decrypt(encrypted)
-# end=time.perf_counter()
-# print ("Decrypt time: ",(end-start))
-
-
-# print ('Decrypted:\t'+decrypted.hex())
-# print ('Decrypted:\t'+Padding.removePadding(decrypted.decode(),blocksize=8,mode='CMS'))
 

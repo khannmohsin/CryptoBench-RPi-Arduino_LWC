@@ -44,6 +44,8 @@ libgrain.ECRYPT_decrypt_bytes.argtypes = [ctypes.POINTER(ECRYPT_ctx),
 # Helper functions
 def c_grain_v1_encrypt_file(plaintext, key):
     len_plaintext = len(plaintext)
+    file_size_Kb = len_plaintext * 8 / 1000  # File size in Kilobits
+
     ctx = ECRYPT_ctx()
 
     key_ptr = (ctypes.c_uint8 * len(key))(*key)
@@ -69,7 +71,7 @@ def c_grain_v1_encrypt_file(plaintext, key):
     formatted_encryption_time = round(encryption_time, 2)
     print(f"Encryption time: {formatted_encryption_time} seconds")
 
-    throughput = round(len_plaintext / encryption_time, 2)   # Throughput in Kbps
+    throughput = round(file_size_Kb / encryption_time, 2)   # Throughput in Kbps
     print(f"Encryption Throughput: {throughput} Kbps")
 
     ram = round(avg_ram, 2)
@@ -80,6 +82,8 @@ def c_grain_v1_encrypt_file(plaintext, key):
 
 def c_grain_v1_decrypt_file(ciphertext, key):
     len_ciphertext = len(ciphertext)
+    file_size_Kb = len_ciphertext * 8 / 1000  # File size in Kilobits
+
     ctx = ECRYPT_ctx()
 
     key_ptr = (ctypes.c_uint8 * len(key))(*key)
@@ -105,7 +109,7 @@ def c_grain_v1_decrypt_file(ciphertext, key):
     formatted_decryption_time = round(decryption_time, 2)
     print(f"Decryption time: {formatted_decryption_time} seconds")
 
-    throughput = round(len_ciphertext / decryption_time, 2)   # Throughput in Kbps
+    throughput = round(file_size_Kb / decryption_time, 2)   # Throughput in Kbps
     print(f"Decryption Throughput: {throughput} Kbps")
 
     ram = round(avg_ram, 2)

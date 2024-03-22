@@ -96,11 +96,13 @@ plt.bar(merged_list, mean_list, yerr=confidence_interval_list, capsize=4, color=
 # If file name has decryption_throughput
 if "encryption_time" in file_name:
     print("Encryption Time")
+    plt.yscale('log')
     plt.ylabel('Time (seconds)')
     plt.title('Encryption Time of the Ciphers')
 
 elif "decryption_time" in file_name:
     print("Decryption Time")
+    plt.yscale('log')
     plt.ylabel('Time (seconds)')
     plt.title('Decryption Time of the Ciphers')
 
@@ -119,6 +121,33 @@ elif "decryption_throughput" in file_name:
     print("Decryption Throughput")
     plt.ylabel('Throughput (Kbps)')
     plt.title('Decryption Throughput of the Ciphers')
+
+elif "encryption_RAM" in file_name:
+    # for i, value in enumerate(mean_list):
+    #     plt.text(i, value,  "  "  + str(value), ha = 'center', va = 'bottom', rotation=90)
+    plt.yscale('log')
+    plt.ylabel('RAM (MB)')
+    plt.title('Average Encryption Memory Usage of the Ciphers')
+
+elif "decryption_RAM" in file_name:
+    # for i, value in enumerate(mean_list):
+    #     plt.text(i, value,  "  "  + str(value), ha = 'center', va = 'bottom', rotation=90)
+    plt.yscale('log')
+    plt.ylabel('RAM (MB)')
+    plt.title('Average Decryption Memory Usage of the Ciphers')
+
+elif "encryption_CpB" in file_name:
+    # for i, value in enumerate(mean_list):
+    #     plt.text(i, value,  "  "  + str(value), ha = 'center', va = 'bottom', rotation=90)
+    #plt.yscale('log')
+    plt.ylabel('Cycle per byte (CpB)')
+    plt.title('Average Encryption CpB of the Ciphers')
+
+elif "decryption_CpB" in file_name:
+    # for i, value in enumerate(mean_list):
+    #     plt.text(i, value,  "  "  + str(value), ha = 'center', va = 'bottom', rotation=90)
+    plt.ylabel('Cycle per byte (CpB)')
+    plt.title('Average Decryption CpB of the Ciphers')
 
 plt.legend()
 plt.tight_layout()
