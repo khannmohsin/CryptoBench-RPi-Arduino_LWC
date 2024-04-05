@@ -138,12 +138,12 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = c_aes_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
                     for line in lines:
@@ -160,12 +160,12 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(192)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = c_aes_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
                     for line in lines:
@@ -182,12 +182,12 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(256)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = c_aes_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
                     os.system(f"kill -9 {bcmticks_process.pid}")
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
                     for line in lines:
@@ -211,11 +211,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"  
                 if args.key_size == "128":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = c_aes_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -232,11 +232,11 @@ def main():
 
                 elif args.key_size == "192":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = c_aes_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -253,11 +253,11 @@ def main():
 
                 elif args.key_size == "256":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = c_aes_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -294,11 +294,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pyaes_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -316,11 +316,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(192)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pyaes_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -338,11 +338,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(256)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pyaes_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -367,11 +367,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pyaes_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -388,11 +388,11 @@ def main():
 
                 elif args.key_size == "192":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pyaes_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -409,11 +409,11 @@ def main():
 
                 elif args.key_size == "256":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pyaes_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -450,11 +450,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(80)
                     key = random_key_bits
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram   = c_present_encrypt_file_key_80(plaintext, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -472,11 +472,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_key_bits
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = c_present_encrypt_file_key_128(plaintext, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -502,11 +502,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "80":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = c_present_decrypt_file_key_80(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -523,11 +523,11 @@ def main():
 
                 elif args.key_size == "128":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = c_present_decrypt_file_key_128(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -564,11 +564,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(80)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram  = pypresent_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -586,11 +586,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pypresent_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -615,11 +615,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "80":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram  = pypresent_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -636,11 +636,11 @@ def main():
 
                 elif args.key_size == "128":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram  = pypresent_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()  
-                    arduino_serial.write("stop", 'utf-8')      
+                    arduino_serial.write(bytes("stop", 'utf-8'))      
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -675,11 +675,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pyxtea_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -704,11 +704,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pyxtea_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -745,11 +745,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = cClefia_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -767,11 +767,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(192)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = cClefia_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -789,11 +789,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(256)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = cClefia_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -818,11 +818,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = cClefia_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -839,11 +839,11 @@ def main():
 
                 elif args.key_size == "192":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = cClefia_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -860,11 +860,11 @@ def main():
 
                 elif args.key_size == "256":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = cClefia_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -901,11 +901,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(64)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -930,11 +930,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "64":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -960,11 +960,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(96)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -989,11 +989,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "96":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1019,11 +1019,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(96)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1041,11 +1041,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1070,11 +1070,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "96":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1091,11 +1091,11 @@ def main():
 
                 elif args.key_size == "128":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1121,11 +1121,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(96)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1149,11 +1149,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "96":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1179,11 +1179,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1201,11 +1201,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(192)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1223,11 +1223,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(256)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pysimon_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1252,11 +1252,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1273,11 +1273,11 @@ def main():
                 
                 elif args.key_size == "192":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1294,11 +1294,11 @@ def main():
 
                 elif args.key_size == "256":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pysimon_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1335,11 +1335,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(64)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1364,11 +1364,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "64":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1393,11 +1393,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(96)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1422,11 +1422,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "96":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1452,11 +1452,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(96)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1474,11 +1474,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1503,11 +1503,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "96":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1524,11 +1524,11 @@ def main():
 
                 elif args.key_size == "128":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1554,11 +1554,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(96)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1583,11 +1583,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "96":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1613,11 +1613,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1635,11 +1635,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(192)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1657,11 +1657,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(256)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = pyspeck_encrypt_file(plaintext, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1686,11 +1686,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1707,11 +1707,11 @@ def main():
                 
                 elif args.key_size == "192":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1728,11 +1728,11 @@ def main():
 
                 elif args.key_size == "256":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = pyspeck_decrypt_file(imdt_output, key, block_size)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1765,11 +1765,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = c_ascon_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1793,11 +1793,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = c_ascon_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1830,11 +1830,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram = c_grain128_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1858,11 +1858,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = c_grain128_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1896,11 +1896,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(80)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram  = c_mickey_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1924,11 +1924,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "80":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = c_mickey_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1963,11 +1963,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(80)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram  = c_trivium_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -1991,11 +1991,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "80":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = c_trivium_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -2029,11 +2029,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram  = c_salsa_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -2057,11 +2057,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"       
                 if args.key_size == "128":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = c_salsa_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -2094,11 +2094,11 @@ def main():
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes
                     cycle_count_enc = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     imdt_output, enc_time, enc_throughput, enc_ram  = c_sosemanuk_encrypt_file(plaintext, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -2122,11 +2122,11 @@ def main():
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
                     cycle_count_dec = []
-                    arduino_serial.write(algo_name, 'utf-8')
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
                     bcmticks_process = subprocess.Popen(["./first_cycles"])
                     decrypted_output, dec_time, dec_throughput, dec_ram = c_sosemanuk_decrypt_file(imdt_output, key)
                     bcmticks_process.terminate()
-                    arduino_serial.write("stop", 'utf-8')
+                    arduino_serial.write(bytes("stop", 'utf-8'))
                     os.system(f"kill -9 {bcmticks_process.pid}")
                     with open ('output.txt', 'r') as file:
                         lines = file.readlines()
@@ -2157,11 +2157,11 @@ def main():
                         random_key_bits, random_bytes = generate_random_key(80)
                         key = random_bytes
                         cycle_count_enc = []
-                        arduino_serial.write(algo_name, 'utf-8')
+                        arduino_serial.write(bytes(algo_name, 'utf-8'))
                         bcmticks_process = subprocess.Popen(["./first_cycles"])
                         imdt_output, enc_time, enc_throughput, enc_ram  = c_grain_v1_encrypt_file(plaintext, key)
                         bcmticks_process.terminate()
-                        arduino_serial.write("stop", 'utf-8')
+                        arduino_serial.write(bytes("stop", 'utf-8'))
                         os.system(f"kill -9 {bcmticks_process.pid}")
                         with open ('output.txt', 'r') as file:
                             lines = file.readlines()
@@ -2185,11 +2185,11 @@ def main():
                     algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                     if args.key_size == "80":
                         cycle_count_dec = []
-                        arduino_serial.write(algo_name, 'utf-8')
+                        arduino_serial.write(bytes(algo_name, 'utf-8'))
                         bcmticks_process = subprocess.Popen(["./first_cycles"])
                         decrypted_output, dec_time, dec_throughput, dec_ram = c_grain_v1_decrypt_file(imdt_output, key)
                         bcmticks_process.terminate()
-                        arduino_serial.write("stop", 'utf-8')
+                        arduino_serial.write(bytes("stop", 'utf-8'))
                         os.system(f"kill -9 {bcmticks_process.pid}")
                         with open ('output.txt', 'r') as file:
                             lines = file.readlines()
