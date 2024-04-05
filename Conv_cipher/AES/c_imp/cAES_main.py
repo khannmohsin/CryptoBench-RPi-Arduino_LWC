@@ -1,7 +1,7 @@
 import ctypes
 import sys
 import time
-import psutil
+import resource
 
 # Load the AES library
 aes_lib = ctypes.CDLL("Conv_cipher/AES/c_imp/aes.so")  # Replace "libaes.so" with the appropriate library name
@@ -19,6 +19,9 @@ aes_encrypt.argtypes = [ctypes.POINTER(ctypes.c_ubyte), ctypes.POINTER(ctypes.c_
 
 aes_decrypt = aes_lib.aes_decrypt
 aes_decrypt.argtypes = [ctypes.POINTER(ctypes.c_ubyte), ctypes.POINTER(ctypes.c_ubyte), ctypes.POINTER(WORD), ctypes.c_int]
+
+def get_memory_usage():
+    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
 def appendPadding(block, blocksize, mode):
     """Append padding to the block.
@@ -84,8 +87,7 @@ def c_aes_encrypt_file(plaintext, key):
     # Encrypt the plaintext
     ciphertext = bytearray()
     total_encryption_time = 0
-    # avg_memory_usage = []
-    initial_ram = psutil.virtual_memory().used
+    memory_before = get_memory_usage()
     for i in range(0, len(plaintext), 16):
         block = plaintext[i:i+16]
         # Pad the last block if needed
@@ -93,16 +95,16 @@ def c_aes_encrypt_file(plaintext, key):
             block = appendPadding(block, blocksize=16, mode='EBC')
 
         enc_buf = (BYTE)()
+
         start_time = time.perf_counter()
         aes_encrypt((BYTE)(*block), enc_buf, key_schedule, key_length)
         end_time = time.perf_counter()
-        # Process = psutil.Process()
         encryption_time = end_time - start_time
         total_encryption_time += encryption_time
         ciphertext += enc_buf
-        # avg_memory_usage.append(Process.memory_info().rss / 1024 / 1024)
-    final_ram = psutil.virtual_memory().used
-    ram_consumption = (final_ram - initial_ram)/1000000
+
+    memory_after = get_memory_usage()
+    
     # Format the total encryption time to two decimal places
     formatted_total_encryption_time = round(total_encryption_time, 2)
     
@@ -114,10 +116,10 @@ def c_aes_encrypt_file(plaintext, key):
 
     print("Encryption Throughput:", throughput, "Kbps")
 
-    # ram = round(sum(avg_memory_usage) / len(avg_memory_usage), 2)
-    print("Average memory usage:", ram_consumption, "MB")
+    memory_consumption = memory_after - memory_before
+    print("Average memory usage:", memory_consumption, "bytes")
 
-    return ciphertext, formatted_total_encryption_time, throughput, ram_consumption
+    return ciphertext, formatted_total_encryption_time, throughput, memory_consumption
 
 
 def c_aes_decrypt_file(ciphertext, key):
@@ -133,23 +135,20 @@ def c_aes_decrypt_file(ciphertext, key):
     # Decrypt the ciphertext
     plaintext = bytearray()
     total_decryption_time = 0
-    # avg_memory_usage = []
-    initial_ram = psutil.virtual_memory().used
+    memory_before = get_memory_usage()
     for i in range(0, len(ciphertext), 16):
         block = ciphertext[i:i+16]
         dec_buf = (BYTE)()
         start_time = time.perf_counter()
         aes_decrypt((BYTE)(*block), dec_buf, key_schedule, key_length)
         end_time = time.perf_counter()
-        # Process = psutil.Process()
-
         decryption_time = end_time - start_time
         total_decryption_time += decryption_time
         # avg_memory_usage.append(Process.memory_info().rss / 1024 / 1024)
         plaintext += dec_buf
+    
+    memory_after = get_memory_usage()
 
-    final_ram = psutil.virtual_memory().used
-    ram_consumption = (final_ram - initial_ram)/1000000
     # Format the total encryption time to two decimal places
     formatted_total_decryption_time = round(total_decryption_time, 2)
 
@@ -161,7 +160,7 @@ def c_aes_decrypt_file(ciphertext, key):
     print("Decryption Throughput:", throughput, "Kbps")
     # print("Decrypted text:", plaintext)
 
-    # ram = round(sum(avg_memory_usage) / len(avg_memory_usage), 2)
-    print("Average memory usage:", ram_consumption, "MB")
+    memory_consumption = memory_after - memory_before
+    print("Average memory usage:", memory_consumption, "bytes")
 
-    return plaintext, formatted_total_decryption_time, throughput, ram_consumption
+    return plaintext, formatted_total_decryption_time, throughput, memory_consumption

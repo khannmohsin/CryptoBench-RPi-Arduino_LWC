@@ -1,5 +1,5 @@
 #!/bin/bash
-iterations=10
+iterations=1
 
 echo -e "\n"
 
