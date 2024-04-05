@@ -98,7 +98,7 @@ for ((i = 1; i <= iterations; i++)); do
 
     # -----------------Python Implementation of SPECK CIPHER -----------------
 
-    python3 rb_main.py py-speck 64 Files/Crypto_input/photo/oneMB_photo.jpg 32
+    python3 rb_main.py py-speck 64   32
 
     python3 rb_main.py py-speck 96 Files/Crypto_input/photo/oneMB_photo.jpg 48
 
