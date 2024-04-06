@@ -207,6 +207,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"  
                 if args.key_size == "128":
@@ -363,6 +364,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
@@ -498,6 +500,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "80":
@@ -611,6 +614,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "80":
@@ -700,6 +704,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
@@ -814,6 +819,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
@@ -926,6 +932,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "64":
@@ -985,6 +992,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "96":
@@ -1066,6 +1074,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "96":
@@ -1145,6 +1154,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "96":
@@ -1247,7 +1257,8 @@ def main():
 
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
-
+                        
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
@@ -1360,6 +1371,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "64":
@@ -1418,6 +1430,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "96":
@@ -1499,6 +1512,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "96":
@@ -1579,6 +1593,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "96":
@@ -1682,6 +1697,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics: ")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
@@ -1789,6 +1805,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics:")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
@@ -1854,6 +1871,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics:")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
@@ -1920,6 +1938,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics:")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "80":
@@ -1987,6 +2006,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics:")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "80":
@@ -2053,6 +2073,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics:") 
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"       
                 if args.key_size == "128":
@@ -2118,6 +2139,7 @@ def main():
                 with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                         file.write(imdt_output)
 
+                time.sleep(2)
                 print("\nDecryption Metrics:")
                 algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                 if args.key_size == "128":
@@ -2180,7 +2202,8 @@ def main():
                         
                     with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
                             file.write(imdt_output)
-    
+
+                    time.sleep(2)
                     print("\nDecryption Metrics:")
                     algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
                     if args.key_size == "80":
