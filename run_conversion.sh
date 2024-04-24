@@ -9,6 +9,15 @@ gcc -fPIC -shared -o LW_Block_Cipher/SPN/PRESENT/c_imp/present.so LW_Block_Ciphe
 # -----------------C compilation of PRESENT CIPHER -----------------
 gcc -fPIC -shared -o LW_Block_Cipher/SPN/PRESENT/c_imp/present.so LW_Block_Cipher/SPN/PRESENT/c_imp/present.c
 
+# -----------------C compilation of XTEA CIPHER ---------------------
+gcc -fPIC -shared -o LW_Block_Cipher/FN/XTEA/c_imp/xtea.so LW_Block_Cipher/FN/XTEA/c_imp/xtea.c
+
+# -----------------C compilation of SIMON CIPHER ---------------------
+gcc -fPIC -shared -o LW_Block_Cipher/FN/SIMON/c_imp/simon.so LW_Block_Cipher/FN/SIMON/c_imp/simon.c 
+
+# -----------------C compilation of SPECK CIPHER ---------------------
+gcc -fPIC -shared -o LW_Block_Cipher/ARX/SPECK/c_imp/speck.so LW_Block_Cipher/ARX/SPECK/c_imp/speck.c
+
 # -----------------C compilation of CLEFIA CIPHER -----------------
 gcc -fPIC -shared -o LW_Block_Cipher/GFN/CLEFIA/c_imp/clefia_ref.so LW_Block_Cipher/GFN/CLEFIA/c_imp/clefia_ref.c
 

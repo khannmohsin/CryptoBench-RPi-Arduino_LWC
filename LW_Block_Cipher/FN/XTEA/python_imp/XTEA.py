@@ -43,16 +43,3 @@ class XTEA():
             sum = (sum - self.DELTA) & self.MASK
             v0 = (v0 - (((v1<<4 ^ v1>>5) + v1) ^ (sum + k[sum & 3]))) & self.MASK
         return struct.pack("2I",v0,v1)
-
-
-# key = key.rjust(32, '0')      # Key is 32 hex chars - 128 bits 
-# message = message.rjust(8, '0')  # Block size is 64 bytes
-# print('Message:\t',message)
-# print('Key:\t\t',key.encode())    
-# x = XTEA()
-# z = x.xtea_encrypt(bytes.fromhex(key),message.encode())
-# z= z.hex()
-# print('Cipher:\t\t',z ) 
-# z = bytes.fromhex(z)
-# x = x.xtea_decrypt(bytes.fromhex(key),z)
-# print('Decrypt:\t',x.decode())
