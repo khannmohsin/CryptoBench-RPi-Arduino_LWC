@@ -1,169 +1,324 @@
 import ctypes
 import os
+from enum import IntEnum
+import secrets
+import time
+import resource
 
+# Load the shared library
+simon_lib = ctypes.CDLL("LW_Block_Cipher/FN/SIMON/c_imp/simon.so")
 
-# Define the necessary types for the function arguments
+# Define the structure for SimSpk_Cipher
 class SimSpk_Cipher(ctypes.Structure):
     _fields_ = [
-        ('block_size', ctypes.c_uint8),
-        ('key_size', ctypes.c_uint8),
-        ('round_limit', ctypes.c_uint8),
-        ('cipher_cfg', ctypes.c_int),
-        ('z_seq', ctypes.c_int),
-        ('key_schedule', ctypes.c_uint64 * 272)  # Adjust the size according to your needs
+        ("block_size", ctypes.c_uint8),
+        ("key_size", ctypes.c_uint8),
+        ("round_limit", ctypes.c_uint8),
+        ("cipher_cfg", ctypes.c_uint8),
+        ("z_seq", ctypes.c_uint8),
+        ("key_schedule", ctypes.c_uint64 * 72),  # Maximum key schedule size
+        ("encryptPtr", ctypes.c_void_p),  # Function pointer for encryption
+        ("decryptPtr", ctypes.c_void_p),  # Function pointer for decryption
     ]
-    
-# Load the SIMON library
-simon_lib = ctypes.CDLL("simon.so")
 
-# Define the function prototypes for the C functions
+# Define an enum for cipher configuration
+class CipherConfig(IntEnum):
+    cfg_64_32 = 0
+    cfg_96_48 = 2
+    cfg_128_64 = 3
+    cfg_144_96 = 5
+    cfg_256_128 = 7
+
+# Define the function prototype for the Simon_Init function
 simon_init_func = simon_lib.Simon_Init
 simon_init_func.argtypes = [
     ctypes.POINTER(SimSpk_Cipher),  # SimSpk_Cipher *
-    ctypes.c_int,  # cipher_cfg
-    ctypes.c_int,  # c_mode
+    ctypes.c_uint8,  # cipher_cfg
+    ctypes.c_uint8,  # c_mode
     ctypes.c_void_p,  # key
     ctypes.POINTER(ctypes.c_ubyte),  # iv
     ctypes.POINTER(ctypes.c_ubyte)  # counter
 ]
-simon_init_func.restype = ctypes.c_uint8
 
 # Define the SIMON encryption function
-Simon_Encrypt = simon_lib.Simon_Encrypt
-Simon_Encrypt.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_uint8), ctypes.c_void_p]
-Simon_Encrypt.restype = ctypes.c_uint8
+simon_encrypt = simon_lib.Simon_Encrypt
+simon_encrypt.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_uint8), ctypes.c_void_p]
+simon_encrypt.restype = ctypes.c_uint8
 
 # Define the SIMON decryption function
-Simon_Decrypt = simon_lib.Simon_Decrypt
-Simon_Decrypt.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_uint8), ctypes.c_void_p]
-Simon_Decrypt.restype = ctypes.c_uint8
+simon_decrypt = simon_lib.Simon_Decrypt
+simon_decrypt.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_uint8), ctypes.c_void_p]
+simon_decrypt.restype = ctypes.c_uint8
 
-def simon_init(cipher_object, cipher_cfg, c_mode, key, iv, counter):
-    return simon_init_func(ctypes.byref(cipher_object), cipher_cfg, c_mode, key, iv, counter)
 
-def simon_encrypt(cipher_object, plaintext, ciphertext):
-    return Simon_Encrypt(ctypes.byref(cipher_object), plaintext, ciphertext)
+def get_memory_usage():
+    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
-def simon_decrypt(cipher_object, ciphertext, plaintext):
-    return Simon_Decrypt(ctypes.byref(cipher_object), ciphertext, plaintext)
+def c_simon_encrypt_file(plaintext, key, block_size):
+    file_size = len(plaintext)
+    file_size_Kb = file_size * 8 / 1000  # File size in Kilobits
 
-# Define the SIMON cipher configurations
-class CipherConfig:
-    cfg_64_32 = 0
-    cfg_128_64 = 1
-    # Define other configurations as needed
+    c_mode = 0
+    plaintext = (ctypes.c_ubyte * len(plaintext))(*plaintext)
+    key_ptr = ctypes.cast(key, ctypes.POINTER(ctypes.c_uint8))
+    iv = None
+    counter = None
 
-class Mode:
-    default_mode = 0
-    # Define other modes as needed
 
-def test_simon_init():
-    # Define the arguments
-    cipher_object = SimSpk_Cipher()
+    if block_size == 32:
+        cipher_object = SimSpk_Cipher()
+        cipher_object.block_size = 32
+        cipher_object.key_size = 64
+        cipher_object.round_limit = 72
+        cipher_object.cipher_cfg = 0
+        cipher_object.z_seq = 0
+        cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+        cipher_object.encryptPtr = None
+        cipher_object.decryptPtr = None
+        block_size_bytes = 4
+
+    elif block_size == 48:
+        cipher_object = SimSpk_Cipher()
+        cipher_object.block_size = 48
+        cipher_object.key_size = 96
+        cipher_object.round_limit = 72
+        cipher_object.cipher_cfg = 2
+        cipher_object.z_seq = 0
+        cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+        cipher_object.encryptPtr = None
+        cipher_object.decryptPtr = None
+        block_size_bytes = 6
+
+    elif block_size == 64:
+        cipher_object = SimSpk_Cipher()
+        cipher_object.block_size = 64
+        cipher_object.key_size = 128
+        cipher_object.round_limit = 72
+        cipher_object.cipher_cfg = 3
+        cipher_object.z_seq = 0
+        cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+        cipher_object.encryptPtr = None
+        cipher_object.decryptPtr = None
+        block_size_bytes = 8
+
+    elif block_size == 96:
+        cipher_object = SimSpk_Cipher()
+        cipher_object.block_size = 96
+        cipher_object.key_size = 144
+        cipher_object.round_limit = 72
+        cipher_object.cipher_cfg = 5
+        cipher_object.z_seq = 0
+        cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+        cipher_object.encryptPtr = None
+        cipher_object.decryptPtr = None
+        block_size_bytes = 12
+
+    elif block_size == 128:
+        cipher_object = SimSpk_Cipher()
+        cipher_object.block_size = 128
+        cipher_object.key_size = 256
+        cipher_object.round_limit = 72
+        cipher_object.cipher_cfg = 7
+        cipher_object.z_seq = 0
+        cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+        cipher_object.encryptPtr = None
+        cipher_object.decryptPtr = None
+        block_size_bytes = 16
+
+
+    result = simon_init_func(ctypes.byref(cipher_object), cipher_object.cipher_cfg, c_mode, key_ptr, iv, counter)
+
+    if result == 0:
+        print("Cipher object initialized successfully.")
+
+    ciphertext = bytearray()
+    total_encryption_time = 0
+    memory_before = get_memory_usage()
+    for i in range(0, len(plaintext), block_size_bytes):
+        block = plaintext[i:i+block_size_bytes]
+        
+        if len(block) < block_size_bytes:
+            block += bytes(block_size_bytes - len(block))
+        block_array = (ctypes.c_ubyte * len(block))(*block)
+        encrypted_block = (ctypes.c_ubyte * len(block))()
+        
+        start_time = time.perf_counter()
+        simon_encrypt(ctypes.byref(cipher_object), block_array, encrypted_block)
+        end_time = time.perf_counter()
+        encryption_time = end_time - start_time
+        total_encryption_time += encryption_time
+        ciphertext += encrypted_block
+
+    memory_after = get_memory_usage()
+    # Format the total encryption time to two decimal places
+    formatted_total_encryption_time = round(total_encryption_time, 2)
+
+    # Print the formatted total encryption time
+    print("Total encryption time:", formatted_total_encryption_time, "seconds")
+
+    throughput = round(file_size_Kb / total_encryption_time, 2)   # Throughput in Kbps
+    print("Encryption Throughput:", throughput, "Kbps")
+
+    memory_consumption = memory_after - memory_before
+    print("Average memory usage:", memory_consumption, "bytes")
+
+    return ciphertext, formatted_total_encryption_time, throughput, memory_consumption
+
+
+def c_simon_decrypt_file(ciphertext, key, block_size):
+        file_size = len(ciphertext)
+        file_size_Kb = file_size * 8 / 1000  # File size in Kilobits
+
+        c_mode = 0
+        ciphertext = (ctypes.c_ubyte * len(ciphertext))(*ciphertext)
+        key_ptr = ctypes.cast(key, ctypes.POINTER(ctypes.c_uint8))
+        iv = None
+        counter = None
     
-    # Choose the cipher configuration
-    cipher_cfg = CipherConfig.cfg_64_32  # Example: 64-bit block, 32-bit key
-    c_mode = Mode.default_mode  # Example: ECB mode
+        if block_size == 32:
+            cipher_object = SimSpk_Cipher()
+            cipher_object.block_size = 32
+            cipher_object.key_size = 64
+            cipher_object.round_limit = 72
+            cipher_object.cipher_cfg = 0
+            cipher_object.z_seq = 0
+            cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+            cipher_object.encryptPtr = None
+            cipher_object.decryptPtr = None
+            block_size_bytes = 4
     
-    # Define the key, IV, and counter
-    key = b'\x01\x23\x45\x67\x89\xab\xcd\xef'  # Example key, adjust as needed
-    iv = None  # Example IV, adjust as needed
-    counter = None  # Example counter, adjust as needed
+        elif block_size == 48:
+            cipher_object = SimSpk_Cipher()
+            cipher_object.block_size = 48
+            cipher_object.key_size = 96
+            cipher_object.round_limit = 72
+            cipher_object.cipher_cfg = 2
+            cipher_object.z_seq = 0
+            cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+            cipher_object.encryptPtr = None
+            cipher_object.decryptPtr = None
+            block_size_bytes = 6
+    
+        elif block_size == 64:
+            print("Block size is 64")
+            cipher_object = SimSpk_Cipher()
+            cipher_object.block_size = 64
+            cipher_object.key_size = 128
+            cipher_object.round_limit = 72
+            cipher_object.cipher_cfg = 3
+            cipher_object.z_seq = 0
+            cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+            cipher_object.encryptPtr = None
+            cipher_object.decryptPtr = None
+            block_size_bytes = 8
+    
+        elif block_size == 96:
+            cipher_object = SimSpk_Cipher()
+            cipher_object.block_size = 96
+            cipher_object.key_size = 144
+            cipher_object.round_limit = 72
+            cipher_object.cipher_cfg = 5
+            cipher_object.z_seq = 0
+            cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+            cipher_object.encryptPtr = None
+            cipher_object.decryptPtr = None
+            block_size_bytes = 12
+    
+        elif block_size == 128:
+            cipher_object = SimSpk_Cipher()
+            cipher_object.block_size = 128
+            cipher_object.key_size = 256
+            cipher_object.round_limit = 72
+            cipher_object.cipher_cfg = 7
+            cipher_object.z_seq = 0
+            cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+            cipher_object.encryptPtr = None
+            cipher_object.decryptPtr = None
+            block_size_bytes = 16
+    
+        result = simon_init_func(ctypes.byref(cipher_object), cipher_object.cipher_cfg, c_mode, key_ptr, iv, counter)
+    
+        if result == 0:
+            print("Cipher object initialized successfully.")
 
-    # Call the function
-    result = simon_init(cipher_object, cipher_cfg, c_mode, key, iv, counter)
+        plaintext = bytearray()
+        total_decryption_time = 0
+        memory_before = get_memory_usage()
 
-    # Check the result
-    if result == 0:
-        print("Simon initialization successful.")
-        print("Block size:", cipher_object.block_size)
-        print("Key size:", cipher_object.key_size)
-        print("Round limit:", cipher_object.round_limit)
-        print("Cipher configuration:", cipher_object.cipher_cfg)
-        print("Z sequence:", cipher_object.z_seq)
-    else:
-        print("Simon initialization failed.")
+        for i in range(0, len(ciphertext), block_size_bytes):
+            block = ciphertext[i:i+block_size_bytes]
+            if len(block) < block_size_bytes:
+                block += bytes(block_size_bytes - len(block))
+            block_array = (ctypes.c_ubyte * len(block))(*block)
+            decrypted_block = (ctypes.c_ubyte * len(block))()
 
-# Test the function
-# test_simon_init()
+            start_time = time.perf_counter()
+            simon_decrypt(ctypes.byref(cipher_object), block_array, decrypted_block)
+            end_time = time.perf_counter()
 
-def test_simon_encrypt():
-    # Define the arguments
-    cipher_object = SimSpk_Cipher()
-    cipher_cfg = CipherConfig.cfg_64_32 
-    key = b'\x01\x23\x45\x67\x89\xab\xcd\xef'  # Example key, adjust as needed
-    iv = None  # Example IV, adjust as needed
-    plaintext = b'Hello, SIMON!'  # Example plaintext, adjust as needed
-    ciphertext = (ctypes.c_ubyte * 8)()  # Allocate space for ciphertext (8 bytes for 64-bit block size)
-    counter = None  # Example counter, adjust as needed
-    c_mode = 0  # Example mode, adjust as needed
+            decryption_time = end_time - start_time
+            total_decryption_time += decryption_time
+            plaintext += decrypted_block
 
-    plaintext_ptr = (ctypes.c_ubyte * len(plaintext))(*plaintext)
+        memory_after = get_memory_usage()
 
-    # Initialize the SIMON cipher
-    result = simon_init(cipher_object, cipher_cfg, c_mode, key, iv, counter)
+        # Format the total encryption time to two decimal places
+        formatted_total_decryption_time = round(total_decryption_time, 2)
 
-    # Check if initialization was successful
-    if result == 0:
-        print("Simon initialization successful.")
+        # Print the formatted total encryption time
+        print("Total decryption time:", formatted_total_decryption_time, "seconds")
 
-        # Encrypt the plaintext
-        encrypt_result = simon_encrypt(cipher_object, plaintext_ptr, ciphertext)
+        throughput = round(file_size_Kb / total_decryption_time, 2)   # Throughput in Kbps
+        print("Decryption Throughput:", throughput, "Kbps")
 
-        # Check if encryption was successful
-        if encrypt_result == 0:
-            print("Encryption successful.")
-            print("Plaintext:", plaintext)
-            print("Ciphertext:", bytes(ciphertext))  # Convert ciphertext to bytes for display
-        else:
-            print("Encryption failed.")
-    else:
-        print("Simon initialization failed.")
+        memory_consumption = memory_after - memory_before
+        print("Average memory usage:", memory_consumption, "bytes")
+
+        return plaintext, formatted_total_decryption_time, throughput, memory_consumption
+            
+
+# def generate_random_key(num_bits):
+#     # Generate a random byte array of appropriate length
+#     num_bytes = (num_bits + 7) // 8  # Round up to the nearest whole number of bytes
+#     random_bytes = secrets.token_bytes(num_bytes)
+#     # random_integer = int.from_bytes(random_bytes, byteorder='big')
+    
+#     # Convert the byte array to a bit string
+#     random_key_bits = ''.join(format(byte, '08b') for byte in random_bytes)
+    
+#     # Trim any excess bits
+#     random_key_bits = random_key_bits[:num_bits]
+    
+#     return random_key_bits, random_bytes
 
 
-def test_simon_decrypt():
-    # Define the arguments
-    cipher_object = SimSpk_Cipher()
-    cipher_cfg = CipherConfig.cfg_64_32
-    key = b'\x01\x23\x45\x67\x89\xab\xcd\xef'  # Example key, adjust as needed
-    iv = None  # Example IV, adjust as needed
-    plaintext = b'Hello, SIMON!'  # Example plaintext, adjust as needed
-    ciphertext = (ctypes.c_ubyte * 8)()  # Allocate space for ciphertext (8 bytes for 64-bit block size)
-    decrypted_plaintext = (ctypes.c_ubyte * len(plaintext))()  # Allocate space for decrypted plaintext
-    counter = None  # Example counter, adjust as needed
-    c_mode = 0  # Example mode, adjust as needed
+# def main():
+#     # Define the key size in bits
+#     key_size = 256
+#     block_size = 128
 
-    plaintext_ptr = (ctypes.c_ubyte * len(plaintext))(*plaintext)
+#     # Generate a random key
+#     key_bits, key_bytes = generate_random_key(key_size)
+#     key = (ctypes.c_uint8 * len(key_bytes))(*key_bytes)
 
-    # Initialize the SIMON cipher
-    result = simon_init(cipher_object, cipher_cfg, c_mode, key, iv, counter)
+#     # Define the plaintext
+#     plaintext = b"Hello, World!.... This is a fucking test..........."
 
-    # Check if initialization was successful
-    if result == 0:
-        print("Simon initialization successful.")
+#     # Encrypt the plaintext
+#     ciphertext = c_simon_encrypt_file(plaintext, key, block_size)
+#     print(ciphertext)
 
-        # Encrypt the plaintext
-        encrypt_result = simon_encrypt(cipher_object, plaintext_ptr, ciphertext)
 
-        # Check if encryption was successful
-        if encrypt_result == 0:
-            print("Encryption successful.")
-            print("Plaintext:", plaintext)
-            print("Ciphertext:", bytes(ciphertext))  # Convert ciphertext to bytes for display
+    
+#     # print("Ciphertext:", bytes(ciphertext))
 
-            # Decrypt the ciphertext
-            decrypt_result = simon_decrypt(cipher_object, ciphertext, decrypted_plaintext)
+#     # Decrypt the ciphertext
+#     decryptedtext = c_simon_decrypt_file(ciphertext, key, block_size)
 
-            # Check if decryption was successful
-            if decrypt_result == 0:
-                print("Decryption successful.")
-                print("Decrypted plaintext:", bytes(decrypted_plaintext))  # Convert decrypted plaintext to bytes for display
-            else:
-                print("Decryption failed.")
-        else:
-            print("Encryption failed.")
-    else:
-        print("Simon initialization failed.")
+#     # Convert the decrypted text to a string and print it
+#     decrypted_string = bytes(decryptedtext)
+#     print(decrypted_string.decode("utf-8"))
 
-# Test the SIMON decryption function
-test_simon_decrypt()
+
+# if __name__ == "__main__":
+#     main()
