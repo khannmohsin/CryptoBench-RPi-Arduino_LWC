@@ -1,6 +1,7 @@
 import ctypes
 import time
-import resource
+import os
+import subprocess
 
 clefia_lib = ctypes.CDLL('LW_Block_Cipher/GFN/CLEFIA/c_imp/clefia_ref.so')
 
@@ -14,7 +15,8 @@ clefia_lib.ClefiaKeySet.restype = ctypes.c_int
 
 
 def get_memory_usage():
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    output = subprocess.check_output(["ps", "-p", str(os.getpid()), "-o", "rss="])
+    return int(output) * 1024  # Convert to bytes
 
 # Define a Python wrapper function for ClefiaKeySet
 def ClefiaKeySet(rk, skey, key_bitlen):
@@ -101,7 +103,7 @@ def cClefia_encrypt_file(plaintext, key):
     print("Encryption Throughput:", throughput, "Kbps")
 
     memory_consumption = memory_after - memory_before
-    print("Average memory usage:", memory_consumption, "bytes")
+    print("Memory usage:", memory_consumption, "bytes")
 
     return ciphertext, formatted_total_encryption_time, throughput, memory_consumption
 
@@ -157,6 +159,6 @@ def cClefia_decrypt_file(ciphertext, key):
     print("Decryption Throughput:", throughput, "Kbps")
 
     memory_consumption = memory_after - memory_before
-    print("Average memory usage:", memory_consumption, "bytes")
+    print("Memory usage:", memory_consumption, "bytes")
 
     return plaintext, formatted_total_decryption_time, throughput, memory_consumption

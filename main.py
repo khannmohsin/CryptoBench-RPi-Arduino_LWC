@@ -905,9 +905,7 @@ def main():
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
 
-            elif args.block_size == "64":
-                block_size = 64
-                print("Encryption Metrics: ")
+            elif args.block_size == "64":                                                                    
                 if args.key_size == "128":
                     random_key_bits, random_bytes = generate_random_key(128)
                     key = random_bytes

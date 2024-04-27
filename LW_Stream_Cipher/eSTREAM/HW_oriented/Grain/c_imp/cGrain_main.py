@@ -1,6 +1,7 @@
 import ctypes
 import time 
-import resource
+import os
+import subprocess
 
 # Load the shared library
 libgrain = ctypes.CDLL("LW_Stream_Cipher/eSTREAM/HW_oriented/Grain/c_imp/grain.so")
@@ -42,7 +43,9 @@ libgrain.ECRYPT_decrypt_bytes.argtypes = [ctypes.POINTER(ECRYPT_ctx),
                                           ctypes.c_uint32]
 
 def get_memory_usage():
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    output = subprocess.check_output(["ps", "-p", str(os.getpid()), "-o", "rss="])
+    return int(output) * 1024  # Convert to bytes
+
 
 # Helper functions
 def c_grain_v1_encrypt_file(plaintext, key):
@@ -57,19 +60,18 @@ def c_grain_v1_encrypt_file(plaintext, key):
     libgrain.ECRYPT_keysetup(ctypes.byref(ctx), key_ptr, 80, 64)
     libgrain.ECRYPT_ivsetup(ctypes.byref(ctx), iv)
 
-    ciphertext = (ctypes.c_uint8 * len(plaintext))()
     plaintext_buffer = ctypes.cast(plaintext, ctypes.POINTER(ctypes.c_uint8))
 
     memory_before = get_memory_usage()
+    ciphertext = (ctypes.c_uint8 * len(plaintext))()
     start_time = time.perf_counter()
 
     libgrain.ECRYPT_encrypt_bytes(ctypes.byref(ctx), plaintext_buffer, ciphertext, len(plaintext))
 
     end_time = time.perf_counter()
 
-    memory_after = get_memory_usage()
-
     encryption_time = end_time - start_time
+    memory_after = get_memory_usage()
 
     formatted_encryption_time = round(encryption_time, 2)
     print(f"Encryption time: {formatted_encryption_time} seconds")
@@ -78,7 +80,7 @@ def c_grain_v1_encrypt_file(plaintext, key):
     print(f"Encryption Throughput: {throughput} Kbps")
 
     memory_consumption = memory_after - memory_before
-    print(f"Average memory usage: {memory_consumption} bytes")
+    print(f"Memory usage: {memory_consumption} bytes")
 
     return ciphertext, formatted_encryption_time, throughput, memory_consumption
 
@@ -94,21 +96,15 @@ def c_grain_v1_decrypt_file(ciphertext, key):
 
     libgrain.ECRYPT_keysetup(ctypes.byref(ctx), key_ptr, 80, 64)
     libgrain.ECRYPT_ivsetup(ctypes.byref(ctx), iv)
-
-    plaintext = (ctypes.c_uint8 * len(ciphertext))()
     ciphertext_buffer = ctypes.cast(ciphertext, ctypes.POINTER(ctypes.c_uint8))
 
     memory_before = get_memory_usage()
-
+    plaintext = (ctypes.c_uint8 * len(ciphertext))()
     start_time = time.perf_counter()
-
     libgrain.ECRYPT_decrypt_bytes(ctypes.byref(ctx), ciphertext_buffer, plaintext, len(ciphertext))
-
     end_time = time.perf_counter()
-
-    memory_after = get_memory_usage()
-
     decryption_time = end_time - start_time
+    memory_after = get_memory_usage()
 
     formatted_decryption_time = round(decryption_time, 2)
     print(f"Decryption time: {formatted_decryption_time} seconds")
@@ -117,6 +113,6 @@ def c_grain_v1_decrypt_file(ciphertext, key):
     print(f"Decryption Throughput: {throughput} Kbps")
 
     memory_consumption = memory_after - memory_before
-    print(f"Average memory usage: {memory_consumption} bytes")
+    print(f"Memory usage: {memory_consumption} bytes")
 
     return plaintext, formatted_decryption_time, throughput, memory_consumption

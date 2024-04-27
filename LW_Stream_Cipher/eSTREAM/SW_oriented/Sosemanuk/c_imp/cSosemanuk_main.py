@@ -1,6 +1,7 @@
 import ctypes
 import time
-import resource
+import os
+import subprocess
 
 # Load the shared library
 lib = ctypes.CDLL("LW_Stream_Cipher/eSTREAM/SW_oriented/Sosemanuk/c_imp/sosemanuk.so")  # Change the filename accordingly
@@ -35,7 +36,8 @@ ECRYPT_process_bytes.argtypes = [ctypes.c_int, ctypes.POINTER(ECRYPT_ctx), ctype
 # Define encryption and decryption functions
 
 def get_memory_usage():
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    output = subprocess.check_output(["ps", "-p", str(os.getpid()), "-o", "rss="])
+    return int(output) * 1024  # Convert to bytes
 
 def c_sosemanuk_encrypt_file(plaintext, key):
     ctx = ECRYPT_ctx()
@@ -47,23 +49,18 @@ def c_sosemanuk_encrypt_file(plaintext, key):
     
     ECRYPT_keysetup(ctypes.byref(ctx), key, 128, 128)
     ECRYPT_ivsetup(ctypes.byref(ctx), iv)
-
-    memory_before = get_memory_usage()
-
-    ciphertext = (u8 * len(plaintext))()
     plaintext_buffer = ctypes.cast(plaintext, ctypes.POINTER(u8))
 
+    memory_before = get_memory_usage()
+    ciphertext = (u8 * len(plaintext))()
     start_time = time.perf_counter()
-
     ECRYPT_process_bytes(0, ctypes.byref(ctx), plaintext_buffer, ciphertext, len(plaintext))
 
     # for i in range(len(plaintext)):
     #     ciphertext[i] = plaintext[i] ^ ciphertext[i]
     end_time = time.perf_counter()
-
-    memory_after = get_memory_usage()
-
     encryption_time = end_time - start_time
+    memory_after = get_memory_usage()
 
     formatted_encryption_time = round(encryption_time, 2)
     print("Total encryption time:", formatted_encryption_time, "seconds")
@@ -72,7 +69,7 @@ def c_sosemanuk_encrypt_file(plaintext, key):
     print("Encryption Throughput:", throughput, "Kbps")
 
     memory_consumption = memory_after - memory_before
-    print("Average memory usage:", memory_consumption, "bytes")
+    print("Memory usage:", memory_consumption, "bytes")
 
     return ciphertext, formatted_encryption_time, throughput, memory_consumption
 
@@ -88,10 +85,10 @@ def c_sosemanuk_decrypt_file(ciphertext, key):
     
     ECRYPT_keysetup(ctypes.byref(ctx), key, 128, 128)
     ECRYPT_ivsetup(ctypes.byref(ctx), iv)
+    ciphertext_buffer = ctypes.cast(ciphertext, ctypes.POINTER(u8))
 
     memory_before = get_memory_usage()
     plaintext = (u8 * len(ciphertext))()
-    ciphertext_buffer = ctypes.cast(ciphertext, ctypes.POINTER(u8))
 
     start_time = time.perf_counter()
 
@@ -100,9 +97,8 @@ def c_sosemanuk_decrypt_file(ciphertext, key):
     # for i in range(len(ciphertext)):
     #     plaintext[i] = ciphertext[i] ^ plaintext[i]
     end_time = time.perf_counter()
-
-    memory_after = get_memory_usage()
     decryption_time = end_time - start_time
+    memory_after = get_memory_usage()
 
     formatted_decryption_time = round(decryption_time, 2)
     print("Total decryption time:", formatted_decryption_time, "seconds")
@@ -111,7 +107,7 @@ def c_sosemanuk_decrypt_file(ciphertext, key):
     print("Decryption Throughput:", throughput, "Kbps")
 
     memory_consumption = memory_after - memory_before
-    print("Average memory usage:", memory_consumption, "bytes")
+    print("Memory usage:", memory_consumption, "bytes")
 
     
     return plaintext, formatted_decryption_time, throughput, memory_consumption

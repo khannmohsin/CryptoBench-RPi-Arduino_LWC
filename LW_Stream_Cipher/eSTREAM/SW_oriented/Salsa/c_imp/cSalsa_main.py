@@ -1,6 +1,7 @@
 import ctypes
 import time
-import resource
+import os
+import subprocess
 
 # Load the shared library
 lib = ctypes.CDLL("LW_Stream_Cipher/eSTREAM/SW_oriented/Salsa/c_imp/ecrypt.so")  # Change the filename accordingly
@@ -25,7 +26,8 @@ ECRYPT_encrypt_bytes.argtypes = [ctypes.POINTER(ECRYPT_ctx), ctypes.POINTER(u8),
 ECRYPT_decrypt_bytes.argtypes = [ctypes.POINTER(ECRYPT_ctx), ctypes.POINTER(u8), ctypes.POINTER(u8), u32]
 
 def get_memory_usage():
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    output = subprocess.check_output(["ps", "-p", str(os.getpid()), "-o", "rss="])
+    return int(output) * 1024  # Convert to bytes
 
 # Define encryption and decryption functions
 def c_salsa_encrypt_file(plaintext, key):
@@ -39,11 +41,11 @@ def c_salsa_encrypt_file(plaintext, key):
 
     ECRYPT_keysetup(ctypes.byref(ctx), key_ptr, len(key) * 8, 128)
     ECRYPT_ivsetup(ctypes.byref(ctx), iv)
+    plaintext_buffer = ctypes.cast(plaintext, ctypes.POINTER(u8))
 
     memory_before = get_memory_usage()
 
     ciphertext = (u8 * len(plaintext))()
-    plaintext_buffer = ctypes.cast(plaintext, ctypes.POINTER(u8))
 
     start_time = time.perf_counter()
 
@@ -62,7 +64,7 @@ def c_salsa_encrypt_file(plaintext, key):
     print(f"Encryption Throughput: {throughput} Kbps")
 
     memory_consumeption = memory_after - memory_before
-    print(f"Average memory usage: {memory_consumeption} bytes")
+    print(f"Memory usage: {memory_consumeption} bytes")
 
     return ciphertext, formatted_encryption_time, throughput, memory_consumeption 
 
@@ -78,11 +80,11 @@ def c_salsa_decrypt_file(ciphertext, key):
 
     ECRYPT_keysetup(ctypes.byref(ctx), key_ptr, len(key) * 8, 128)
     ECRYPT_ivsetup(ctypes.byref(ctx), iv)
+    ciphertext_buffer = ctypes.cast(ciphertext, ctypes.POINTER(u8))
 
     memory_before = get_memory_usage()
     
     plaintext = (u8 * len(ciphertext))()
-    ciphertext_buffer = ctypes.cast(ciphertext, ctypes.POINTER(u8))
 
     start_time = time.perf_counter()
 
@@ -101,7 +103,7 @@ def c_salsa_decrypt_file(ciphertext, key):
     print(f"Decryption Throughput: {throughput} Kbps")
 
     memory_consumption = memory_after - memory_before
-    print(f"Average memory usage: {memory_consumption} bytes")
+    print(f"Memory usage: {memory_consumption} bytes")
 
     return plaintext, formatted_decryption_time, throughput, memory_consumption
 

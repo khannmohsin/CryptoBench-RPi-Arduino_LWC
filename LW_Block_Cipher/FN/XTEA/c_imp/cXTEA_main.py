@@ -1,7 +1,7 @@
 import ctypes
 import time
-import resource
-import secrets
+import os
+import subprocess
 
 xtea_lib = ctypes.CDLL("LW_Block_Cipher/FN/XTEA/c_imp/xtea.so")
 
@@ -19,22 +19,13 @@ xtea_decipher.restype = None
 #     return key
 
 def get_memory_usage():
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    output = subprocess.check_output(["ps", "-p", str(os.getpid()), "-o", "rss="])
+    return int(output) * 1024  # Convert to bytes
 
 def xtea_encrypt(data, key):
-    # Pad the data if its length is not a multiple of 2
-    if len(data) % 2 != 0:
-        data += [0]  # Append a zero to make the length even
-
-    # Convert data and key to uint32_t arrays
-    data_array = (ctypes.c_uint32 * len(data))(*data)
-    key_array = (ctypes.c_uint32 * 4)(*key)
-    
-    # Call the C function
-    xtea_encipher(data_array, key_array)
-    
+    xtea_encipher(data, key)
     # Return the encrypted data
-    return list(data_array)
+    return list(data)
 
 def c_xtea_encrypt_file(plaintext, key):
     file_size = len(plaintext)
@@ -50,22 +41,28 @@ def c_xtea_encrypt_file(plaintext, key):
     ]
 
     data = []
-    memory_before = get_memory_usage()
+    
     for i in range(0, len(plaintext), 4):
         block = plaintext[i:i + 4]
         value = int.from_bytes(block, byteorder='big') if len(block) == 4 else int.from_bytes(block.ljust(4, b'\x00'), byteorder='big')
         data.append(value)
 
+        # Pad the data if its length is not a multiple of 2
+    if len(data) % 2 != 0:
+        data += [0]  # Append a zero to make the length even
+
+    data_array = (ctypes.c_uint32 * len(data))(*data)
+    key_array = (ctypes.c_uint32 * 4)(*key)
+
+    memory_before = get_memory_usage()
     start_time = time.perf_counter()
-    encrypted_data = xtea_encrypt(data, key)
+    encrypted_data = xtea_encrypt(data_array, key_array)
     end_time = time.perf_counter()
     encryption_time = end_time - start_time
     total_encryption_time = encryption_time
 
-    encrypted_bytes = b''.join(value.to_bytes(4, byteorder='big') for value in encrypted_data)
-    # print("ciphertext:", ciphertext)
-
     memory_after = get_memory_usage()
+    encrypted_bytes = b''.join(value.to_bytes(4, byteorder='big') for value in encrypted_data)
 
     formatted_total_encryption_time = round(total_encryption_time, 2)
     print("Total encryption time:", formatted_total_encryption_time, "seconds")
@@ -74,25 +71,16 @@ def c_xtea_encrypt_file(plaintext, key):
     print("Encryption Throughput:", throughput, "Kbps")
 
     memory_consumption = memory_after - memory_before
-    print("Average memory usage:", memory_consumption, "bytes")
+    print("Memory usage:", memory_consumption, "bytes")
 
     return encrypted_bytes, formatted_total_encryption_time, throughput, memory_consumption
 
 
 def xtea_decrypt(data, key):
-    # Pad the data if its length is not a multiple of 2
-    if len(data) % 2 != 0:
-        data += [0]  # Append a zero to make the length even
-
-    # Convert data and key to uint32_t arrays
-    data_array = (ctypes.c_uint32 * len(data))(*data)
-    key_array = (ctypes.c_uint32 * 4)(*key)
-    
     # Call the C function
-    xtea_decipher(data_array, key_array)
-
+    xtea_decipher(data, key)
     # Return the decrypted data
-    return list(data_array)
+    return list(data)
 
 def c_xtea_decrypt_file(ciphertext, key):
     file_size = len(ciphertext)
@@ -107,7 +95,6 @@ def c_xtea_decrypt_file(ciphertext, key):
     ]
 
     data = []
-    memory_before = get_memory_usage()
     for i in range(0, len(ciphertext), 4):
         block = ciphertext[i:i + 4]
         value = int.from_bytes(block, byteorder='big') if len(block) == 4 else int.from_bytes(block.ljust(4, b'\x00'), byteorder='big')
@@ -115,17 +102,21 @@ def c_xtea_decrypt_file(ciphertext, key):
 
     if len(data) % 2 != 0:
         data += [0]
+        
+    # Convert data and key to uint32_t arrays
+    data_array = (ctypes.c_uint32 * len(data))(*data)
+    key_array = (ctypes.c_uint32 * 4)(*key)
 
+    memory_before = get_memory_usage()
     start_time = time.perf_counter()
-    decrypted_data = xtea_decrypt(data, key)
+    decrypted_data = xtea_decrypt(data_array, key_array)
     end_time = time.perf_counter()
     decryption_time = end_time - start_time
     total_decryption_time = decryption_time
 
-    decrypted_bytes = b''.join(value.to_bytes(4, byteorder='big') for value in decrypted_data)
-    # print("plaintext:", plaintext)
-
     memory_after = get_memory_usage()
+
+    decrypted_bytes = b''.join(value.to_bytes(4, byteorder='big') for value in decrypted_data)
 
     formatted_total_decryption_time = round(total_decryption_time, 2)
     print("Total decryption time:", formatted_total_decryption_time, "seconds")
@@ -134,6 +125,6 @@ def c_xtea_decrypt_file(ciphertext, key):
     print("Decryption Throughput:", throughput, "Kbps")
 
     memory_consumption = memory_after - memory_before
-    print("Average memory usage:", memory_consumption, "bytes")
+    print("Memory usage:", memory_consumption, "bytes")
 
     return decrypted_bytes, formatted_total_decryption_time, throughput, memory_consumption

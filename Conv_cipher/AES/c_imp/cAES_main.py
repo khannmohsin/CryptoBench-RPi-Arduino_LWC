@@ -1,7 +1,7 @@
 import ctypes
-import sys
 import time
-import resource
+import subprocess
+import os
 
 # Load the AES library
 aes_lib = ctypes.CDLL("Conv_cipher/AES/c_imp/aes.so")  # Replace "libaes.so" with the appropriate library name
@@ -21,7 +21,8 @@ aes_decrypt = aes_lib.aes_decrypt
 aes_decrypt.argtypes = [ctypes.POINTER(ctypes.c_ubyte), ctypes.POINTER(ctypes.c_ubyte), ctypes.POINTER(WORD), ctypes.c_int]
 
 def get_memory_usage():
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    output = subprocess.check_output(["ps", "-p", str(os.getpid()), "-o", "rss="])
+    return int(output) * 1024  # Convert to bytes
 
 def appendPadding(block, blocksize, mode):
     """Append padding to the block.
@@ -113,11 +114,10 @@ def c_aes_encrypt_file(plaintext, key):
     print("Total encryption time:", formatted_total_encryption_time, "seconds")
 
     throughput = round(file_size_Kb / total_encryption_time, 2)   # Throughput in Kbps
-
     print("Encryption Throughput:", throughput, "Kbps")
 
     memory_consumption = memory_after - memory_before
-    print("Average memory usage:", memory_consumption, "bytes")
+    print("Memory usage:", memory_consumption, "bytes")
 
     return ciphertext, formatted_total_encryption_time, throughput, memory_consumption
 
@@ -146,7 +146,6 @@ def c_aes_decrypt_file(ciphertext, key):
         total_decryption_time += decryption_time
         # avg_memory_usage.append(Process.memory_info().rss / 1024 / 1024)
         plaintext += dec_buf
-    
     memory_after = get_memory_usage()
 
     # Format the total encryption time to two decimal places
@@ -154,13 +153,12 @@ def c_aes_decrypt_file(ciphertext, key):
 
     # Print the formatted total encryption time
     print("Total decryption time:", formatted_total_decryption_time, "seconds")
-
     throughput = round(file_size_Kb / total_decryption_time, 2)   # Throughput in Kbps
 
     print("Decryption Throughput:", throughput, "Kbps")
     # print("Decrypted text:", plaintext)
 
     memory_consumption = memory_after - memory_before
-    print("Average memory usage:", memory_consumption, "bytes")
+    print("Memory usage:", memory_consumption, "bytes")
 
     return plaintext, formatted_total_decryption_time, throughput, memory_consumption

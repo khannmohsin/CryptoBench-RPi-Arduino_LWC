@@ -1,7 +1,7 @@
 import ctypes
-import secrets
 import time
-import resource
+import os
+import subprocess
 
 # Load the C library
 lib_crypto_present = ctypes.CDLL('LW_Block_Cipher/SPN/PRESENT/c_imp/present.so')
@@ -24,20 +24,8 @@ present_decrypt.argtypes = [ctypes.POINTER(ctypes.c_uint8), ctypes.POINTER(ctype
 present_decrypt.restype = None
 
 def get_memory_usage():
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-
-def generate_random_key(num_bits):
-    # Generate a random byte array of appropriate length
-    num_bytes = (num_bits + 7) // 8  # Round up to the nearest whole number of bytes
-    random_bytes = secrets.token_bytes(num_bytes)
-    
-    # Convert the byte array to a bit string
-    random_key_bits = ''.join(format(byte, '08b') for byte in random_bytes)
-    
-    # Trim any excess bits
-    random_key_bits = random_key_bits[:num_bits]
-    
-    return random_key_bits
+    output = subprocess.check_output(["ps", "-p", str(os.getpid()), "-o", "rss="])
+    return int(output) * 1024  # Convert to bytes
 
 # ------------------------------------------Function to encrypt a file with a 80-bit key-------------------------------------
 def c_present_encrypt_file_key_80(plaintext, key):
@@ -87,7 +75,7 @@ def c_present_encrypt_file_key_80(plaintext, key):
     print("Encryption Throughput:", throughput, "Kbps")
 
     memory_consumption = memory_after - memory_before
-    print("Average memory usage:", memory_consumption, "bytes")
+    print("Memory usage:", memory_consumption, "bytes")
     return ciphertext, formatted_total_encryption_time, throughput, memory_consumption
 
 # Function to decrypt a file with a 80-bit key
@@ -189,7 +177,7 @@ def c_present_encrypt_file_key_128(plaintext, key):
     print("Encryption Throughput:", throughput, "Kbps")
 
     memory_consumption = memory_after - memory_before
-    print("Average memory usage:", memory_consumption, "bytes")
+    print("Memory usage:", memory_consumption, "bytes")
 
     return ciphertext, formatted_total_encryption_time, throughput, memory_consumption
 
@@ -239,7 +227,7 @@ def c_present_decrypt_file_key_128(ciphertext, key):
     print("Decryption Throughput:", throughput, "Kbps")
 
     memory_consumption = memory_after - memory_before
-    print("Average memory usage:", memory_consumption, "MB")
+    print("Memory usage:", memory_consumption, "bytes")
 
     return plaintext, formatted_total_decryption_time, throughput, memory_consumption
 

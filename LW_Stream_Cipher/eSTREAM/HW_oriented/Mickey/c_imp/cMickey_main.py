@@ -1,6 +1,7 @@
 import ctypes
 import time 
-import resource
+import os
+import subprocess
 
 # Define types
 u8 = ctypes.c_uint8
@@ -41,7 +42,8 @@ ECRYPT_process_bytes.restype = None
 ECRYPT_init()
 
 def get_memory_usage():
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    output = subprocess.check_output(["ps", "-p", str(os.getpid()), "-o", "rss="])
+    return int(output) * 1024  # Convert to bytes
 
 # Encryption function
 def c_mickey_encrypt_file(plaintext, key):
@@ -76,7 +78,7 @@ def c_mickey_encrypt_file(plaintext, key):
     print("Encryption Throughput:", throughput, "Kbps")
 
     memory_consumption = memory_after - memory_before
-    print("Average memory usage:", memory_consumption, "bytes")
+    print("Memory usage:", memory_consumption, "bytes")
 
     return ciphertext, formatted_encryption_time, throughput, memory_consumption
 
@@ -117,7 +119,7 @@ def c_mickey_decrypt_file(ciphertext, key):
     print("Decryption Throughput:", throughput, "Kbps")
 
     memory_consumption = memory_after - memory_before
-    print("Average memory usage:", memory_consumption, "bytes")
+    print("Memory usage:", memory_consumption, "bytes")
 
     return plaintext, formatted_decryption_time, throughput, memory_consumption 
 

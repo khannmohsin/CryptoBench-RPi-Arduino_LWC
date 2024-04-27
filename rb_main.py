@@ -108,8 +108,8 @@ def update_csv_data(filename, algorithm, block_size, key_size, value):
 
 def main():
     parser = argparse.ArgumentParser(description="Encrypt/Decrypt files using different cryptographic algorithms")
-    parser.add_argument("algorithm", help="The cryptographic algorithm to use", choices=["aes", "py-aes", "present", "py-present", "py-xtea", "clefia", "py-simon", "py-speck", "ascon" , "grain-128a", "mickey", "trivium", "salsa", "sosemanuk", "grain-v1"])
-    parser.add_argument("key_size", help="The size of the key to use", choices=["64", "80", "96", "128", "192", "256"])
+    parser.add_argument("algorithm", help="The cryptographic algorithm to use", choices=["aes", "py-aes", "present", "py-present","xtea" ,"py-xtea", "clefia", "simon", "speck", "py-simon", "py-speck", "ascon" , "grain-128a", "mickey", "trivium", "salsa", "sosemanuk", "py-rabbit", "grain-v1"])
+    parser.add_argument("key_size", help="The size of the key to use", choices=["64", "144", "80", "96", "128", "192", "256"])
     parser.add_argument("file_path", help="The path to the file to encrypt/decrypt")
     parser.add_argument("block_size", help="The size of the block to use (optional)", choices=["32", "48", "64", "96","128", "-"], default="64")
     args = parser.parse_args()
@@ -733,6 +733,76 @@ def main():
 
             else:
                 print("--------------Invalid block size for the Python XTEA algorithm.--------------")
+
+#------------------------------------------ C IMP OF XTEA CIPHER ------------------------------------------
+    if args.algorithm == "xtea":
+
+        sys.path.append('LW_Block_Cipher/FN/XTEA/c_imp/')
+        from cXTEA_main import c_xtea_encrypt_file, c_xtea_decrypt_file
+        
+        for i in range(number_of_iterations):
+            print("\n-----------C-imp of XTEA | Iteration: ", i+1)
+            if args.block_size == "64":
+                print("Encryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_enc"
+                if args.key_size == "128":
+                    random_key_bits, random_bytes = generate_random_key(128)
+                    key = random_bytes
+                    cycle_count_enc = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_xtea_encrypt_file(plaintext, key)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_enc.append(int(line))
+
+                    cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
+                    cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
+                    print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
+                    os.remove('output.txt')
+
+                else:
+                    print("--------------Invalid key size for the C XTEA algorithm.--------------")
+                    sys.exit(1)
+
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+
+                time.sleep(2)
+                print("\nDecryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
+                if args.key_size == "128":
+                    cycle_count_dec = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_xtea_decrypt_file(imdt_output, key)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_dec.append(int(line))
+
+                    cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
+                    cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
+                    print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
+                    os.remove('output.txt')
+                    save_to_csv("XTEA", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+
+            else:
+                print("--------------Invalid block size for the C XTEA algorithm.--------------")
 
 #------------------------------------------ C IMP OF CLEFIA CIPHER ------------------------------------------
     if args.algorithm == "clefia":
@@ -1831,6 +1901,634 @@ def main():
         
                 with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
                     file.write(decrypted_output)
+
+#------------------------------------------ C IMP OF SIMON CIPHER ------------------------------------------
+    if args.algorithm == "simon":
+
+        sys.path.append('LW_Block_Cipher/FN/SIMON/c_imp/')
+        from cSIMON_main import c_simon_encrypt_file, c_simon_decrypt_file
+
+        for i in range(number_of_iterations):
+            print("\n-----------Python-imp of SIMON | Iteration: ", i+1)
+            if args.block_size == "32":
+                block_size = 32
+                print("Encryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_enc"
+                if args.key_size == "64":
+                    random_key_bits, random_bytes = generate_random_key(64)
+                    key = random_bytes
+                    cycle_count_enc = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_simon_encrypt_file(plaintext, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_enc.append(int(line))
+
+                    cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
+                    cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
+                    print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
+                    os.remove('output.txt')
+
+                else:
+                    print("--------------Invalid key size for the C SIMON algorithm.--------------")
+                    sys.exit(1) 
+
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+
+                time.sleep(2)
+                print("\nDecryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
+                if args.key_size == "64":
+                    cycle_count_dec = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_simon_decrypt_file(imdt_output, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_dec.append(int(line))
+
+                    cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
+                    cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
+                    print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
+                    os.remove('output.txt')
+                    save_to_csv("SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+            
+            elif args.block_size == "48":
+                block_size = 48
+                print("Encryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_enc"
+                if args.key_size == "96":
+                    random_key_bits, random_bytes = generate_random_key(96)
+                    key = random_bytes
+                    cycle_count_enc = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_simon_encrypt_file(plaintext, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_enc.append(int(line))
+
+                    cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
+                    cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
+                    print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
+                    os.remove('output.txt')
+
+                else:   
+                    print("--------------Invalid key size for the C SIMON algorithm.--------------")
+                    sys.exit(1)
+
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+
+                time.sleep(2)
+                print("\nDecryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
+                if args.key_size == "96":
+                    cycle_count_dec = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_simon_decrypt_file(imdt_output, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_dec.append(int(line))
+
+                    cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
+                    cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
+                    print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
+                    os.remove('output.txt')
+                    save_to_csv("SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+
+            elif args.block_size == "64":
+                block_size = 64
+                print("Encryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_enc"
+                if args.key_size == "128":
+                    random_key_bits, random_bytes = generate_random_key(128)
+                    key = random_bytes
+                    cycle_count_enc = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_simon_encrypt_file(plaintext, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_enc.append(int(line))
+
+                    cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
+                    cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
+                    print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
+                    os.remove('output.txt')
+
+                else:
+                    print("--------------Invalid key size for the C SIMON algorithm.--------------")
+                    sys.exit(1)
+
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+
+                time.sleep(2)
+                print("\nDecryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
+                if args.key_size == "128":
+                    cycle_count_dec = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_simon_decrypt_file(imdt_output, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_dec.append(int(line))
+
+                    cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
+                    cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
+                    print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
+                    os.remove('output.txt')
+                    save_to_csv("SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
+
+                else:
+                    print("--------------Invalid key size for the C SIMON algorithm.--------------")
+                    sys.exit(1)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+
+            elif args.block_size == "96":
+                block_size = 96
+                print("Encryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_enc"
+                if args.key_size == "144":
+                    random_key_bits, random_bytes = generate_random_key(144)
+                    key = random_bytes
+                    cycle_count_enc = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_simon_encrypt_file(plaintext, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_enc.append(int(line))
+
+                    cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
+                    cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
+                    print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
+                    os.remove('output.txt')
+
+                else:
+                    print("--------------Invalid key size for the C SIMON algorithm.--------------")
+
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+
+                time.sleep(2)
+                print("\nDecryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
+                if args.key_size == "144":
+                    cycle_count_dec = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_simon_decrypt_file(imdt_output, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_dec.append(int(line))
+
+                    cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
+                    cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
+                    print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
+                    os.remove('output.txt')
+                    save_to_csv("SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+
+            elif args.block_size == "128":
+                block_size = 128
+                print("Encryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_enc"
+                if args.key_size == "256":
+                    random_key_bits, random_bytes = generate_random_key(256)
+                    key = random_bytes
+                    cycle_count_enc = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_simon_encrypt_file(plaintext, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_enc.append(int(line))
+
+                    cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
+                    cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
+                    print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
+                    os.remove('output.txt')
+
+                else:
+                    print("--------------Invalid key size for the C SIMON algorithm.--------------")
+                    sys.exit(1)
+
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+                        
+                time.sleep(2)
+                print("\nDecryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
+                if args.key_size == "256":
+                    cycle_count_dec = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_simon_decrypt_file(imdt_output, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_dec.append(int(line))
+                    
+                    cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
+                    cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
+                    print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
+                    os.remove('output.txt')
+                    save_to_csv("SIMON", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+
+            else:
+                print("--------------Invalid block size for the C SIMON algorithm.--------------")
+
+#------------------------------------------ C IMP OF SPECK CIPHER ------------------------------------------
+    if args.algorithm == "speck":
+
+        sys.path.append('LW_Block_Cipher/ARX/SPECK/c_imp/')
+        from cSPECK_main import c_speck_encrypt_file, c_speck_decrypt_file
+
+        for i in range(number_of_iterations):
+            print("\n-----------C-imp of SPECK | Iteration: ", i+1)
+            if args.block_size == "32":
+                block_size = 32
+                print("Encryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_enc"
+                if args.key_size == "64":
+                    random_key_bits, random_bytes = generate_random_key(64)
+                    key = random_bytes
+                    cycle_count_enc = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_speck_encrypt_file(plaintext, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_enc.append(int(line))
+
+                    cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
+                    cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
+                    print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
+                    os.remove('output.txt')
+
+                else:
+                    print("--------------Invalid key size for the C SPECK algorithm.--------------")
+                    sys.exit(1) 
+
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+
+                time.sleep(2)
+                print("\nDecryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
+                if args.key_size == "64":
+                    cycle_count_dec = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_speck_decrypt_file(imdt_output, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_dec.append(int(line))
+
+                    cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
+                    cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
+                    print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
+                    os.remove('output.txt')
+                    save_to_csv("SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+            
+            elif args.block_size == "48":
+                block_size = 48
+                print("Encryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_enc"
+                if args.key_size == "96":
+                    random_key_bits, random_bytes = generate_random_key(96)
+                    key = random_bytes
+                    cycle_count_enc = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_speck_encrypt_file(plaintext, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_enc.append(int(line))
+
+                    cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
+                    cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
+                    print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
+                    os.remove('output.txt')
+
+                else:   
+                    print("--------------Invalid key size for the C SIMON algorithm.--------------")
+                    sys.exit(1)
+
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+
+                time.sleep(2)
+                print("\nDecryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
+                if args.key_size == "96":
+                    cycle_count_dec = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_speck_decrypt_file(imdt_output, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_dec.append(int(line))
+
+                    cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
+                    cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
+                    print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
+                    os.remove('output.txt')
+                    save_to_csv("SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+
+            elif args.block_size == "64":
+                block_size = 64
+                print("Encryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_enc"
+                if args.key_size == "128":
+                    random_key_bits, random_bytes = generate_random_key(128)
+                    key = random_bytes
+                    cycle_count_enc = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_speck_encrypt_file(plaintext, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_enc.append(int(line))
+
+                    cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
+                    cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
+                    print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
+                    os.remove('output.txt')
+
+                else:
+                    print("--------------Invalid key size for the C SPECK algorithm.--------------")
+                    sys.exit(1)
+
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+
+                time.sleep(2)
+                print("\nDecryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
+                if args.key_size == "128":
+                    cycle_count_dec = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_speck_decrypt_file(imdt_output, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_dec.append(int(line))
+
+                    cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
+                    cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
+                    print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
+                    os.remove('output.txt')
+                    save_to_csv("SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
+
+                else:
+                    print("--------------Invalid key size for the C SPECK algorithm.--------------")
+                    sys.exit(1)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+
+            elif args.block_size == "96":
+                block_size = 96
+                print("Encryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_enc"
+                if args.key_size == "144":
+                    random_key_bits, random_bytes = generate_random_key(144)
+                    key = random_bytes
+                    cycle_count_enc = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_speck_encrypt_file(plaintext, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_enc.append(int(line))
+
+                    cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
+                    cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
+                    print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
+                    os.remove('output.txt')
+
+                else:
+                    print("--------------Invalid key size for the C SPECK algorithm.--------------")
+
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+
+                time.sleep(2)
+                print("\nDecryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
+                if args.key_size == "144":
+                    cycle_count_dec = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_speck_decrypt_file(imdt_output, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_dec.append(int(line))
+
+                    cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
+                    cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
+                    print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
+                    os.remove('output.txt')
+                    save_to_csv("SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+
+            elif args.block_size == "128":
+                block_size = 128
+                print("Encryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_enc"
+                if args.key_size == "256":
+                    random_key_bits, random_bytes = generate_random_key(256)
+                    key = random_bytes
+                    cycle_count_enc = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    imdt_output, enc_time, enc_throughput, enc_ram = c_speck_encrypt_file(plaintext, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_enc.append(int(line))
+
+                    cycle_count_enc = [x - int(avg_cpu_cycles) for x in cycle_count_enc]
+                    cycle_per_byte_enc = sum(cycle_count_enc)/len(plaintext)
+                    cycle_per_byte_enc = int(cycle_per_byte_enc)
+                    print(f"Encryption Cycles per byte: {cycle_per_byte_enc} CpB")
+                    os.remove('output.txt')
+
+                else:
+                    print("--------------Invalid key size for the C SPECK algorithm.--------------")
+                    sys.exit(1)
+
+                with open('Files/Crypto_intermediate/encrypted_imdt.enc', 'wb') as file:
+                        file.write(imdt_output)
+                        
+                time.sleep(2)
+                print("\nDecryption Metrics: ")
+                algo_name = args.algorithm + "_" + args.block_size + "_" + args.key_size + "_dec"
+                if args.key_size == "256":
+                    cycle_count_dec = []
+                    arduino_serial.write(bytes(algo_name, 'utf-8'))
+                    bcmticks_process = subprocess.Popen(["./first_cycles"])
+                    decrypted_output, dec_time, dec_throughput, dec_ram = c_speck_decrypt_file(imdt_output, key, block_size)
+                    bcmticks_process.terminate()
+                    arduino_serial.write(bytes("stop", 'utf-8'))
+                    os.system(f"kill -9 {bcmticks_process.pid}")
+                    with open ('output.txt', 'r') as file:
+                        lines = file.readlines()
+                    for line in lines:
+                        line = line.strip()
+                        cycle_count_dec.append(int(line))
+                    
+                    cycle_count_dec = [x - int(avg_cpu_cycles) for x in cycle_count_dec]
+                    cycle_per_byte_dec = sum(cycle_count_dec)/len(plaintext)
+                    cycle_per_byte_dec = int(cycle_per_byte_dec)
+                    print(f"Decryption Cycles per byte: {cycle_per_byte_dec} CpB")
+                    os.remove('output.txt')
+                    save_to_csv("SPECK", args.block_size, args.key_size, enc_time, enc_throughput, dec_time, dec_throughput, cycle_per_byte_enc, cycle_per_byte_dec, enc_ram, dec_ram)
+
+                with open('Files/Crypto_output/decrypted_image.jpg', 'wb') as file:
+                    file.write(decrypted_output)
+
+            else:
+                print("--------------Invalid block size for the C SPECK algorithm.--------------")
 
 #------------------------------------------ C IMP OF Grain-128a CIPHER ------------------------------------------
 

@@ -1,7 +1,8 @@
 import ctypes
 from enum import IntEnum
 import time
-import resource
+import os
+import subprocess
 
 # Load the shared library
 speck_lib = ctypes.CDLL("LW_Block_Cipher/ARX/SPECK/c_imp/speck.so")
@@ -48,9 +49,9 @@ speck_decrypt = speck_lib.Speck_Decrypt
 speck_decrypt.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_uint8), ctypes.c_void_p]
 speck_decrypt.restype = ctypes.c_uint8
 
-
 def get_memory_usage():
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    output = subprocess.check_output(["ps", "-p", str(os.getpid()), "-o", "rss="])
+    return int(output) * 1024  # Convert to bytes
 
 def c_speck_encrypt_file(plaintext, key, block_size):
     file_size = len(plaintext)
@@ -158,7 +159,7 @@ def c_speck_encrypt_file(plaintext, key, block_size):
     print("Encryption Throughput:", throughput, "Kbps")
 
     memory_consumption = memory_after - memory_before
-    print("Average memory usage:", memory_consumption, "bytes")
+    print("Memory usage:", memory_consumption, "bytes")
 
     return ciphertext, formatted_total_encryption_time, throughput, memory_consumption
 
@@ -270,53 +271,7 @@ def c_speck_decrypt_file(ciphertext, key, block_size):
         print("Decryption Throughput:", throughput, "Kbps")
 
         memory_consumption = memory_after - memory_before
-        print("Average memory usage:", memory_consumption, "bytes")
+        print("Memory usage:", memory_consumption, "bytes")
 
         return plaintext, formatted_total_decryption_time, throughput, memory_consumption
             
-
-# def generate_random_key(num_bits):
-#     # Generate a random byte array of appropriate length
-#     num_bytes = (num_bits + 7) // 8  # Round up to the nearest whole number of bytes
-#     random_bytes = secrets.token_bytes(num_bytes)
-#     # random_integer = int.from_bytes(random_bytes, byteorder='big')
-    
-#     # Convert the byte array to a bit string
-#     random_key_bits = ''.join(format(byte, '08b') for byte in random_bytes)
-    
-#     # Trim any excess bits
-#     random_key_bits = random_key_bits[:num_bits]
-    
-#     return random_key_bits, random_bytes
-
-
-# def main():
-#     # Define the key size in bits
-#     key_size = 256
-#     block_size = 128
-
-#     # Generate a random key
-#     key_bits, key_bytes = generate_random_key(key_size)
-#     key = (ctypes.c_uint8 * len(key_bytes))(*key_bytes)
-
-#     # Define the plaintext
-#     plaintext = b"Hello, World!.... This is a fucking test..........."
-
-#     # Encrypt the plaintext
-#     ciphertext = c_simon_encrypt_file(plaintext, key, block_size)
-#     print(ciphertext)
-
-
-    
-#     # print("Ciphertext:", bytes(ciphertext))
-
-#     # Decrypt the ciphertext
-#     decryptedtext = c_simon_decrypt_file(ciphertext, key, block_size)
-
-#     # Convert the decrypted text to a string and print it
-#     decrypted_string = bytes(decryptedtext)
-#     print(decrypted_string.decode("utf-8"))
-
-
-# if __name__ == "__main__":
-#     main()
