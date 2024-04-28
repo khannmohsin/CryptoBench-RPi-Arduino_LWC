@@ -142,7 +142,18 @@ def c_speck_encrypt_file(plaintext, key, block_size):
         encrypted_block = (ctypes.c_ubyte * len(block))()
         
         start_time = time.perf_counter()
-        speck_encrypt(ctypes.byref(cipher_object), block_array, encrypted_block)
+        if block_size == 32:
+            speck_lib.Speck_Encrypt_32(cipher_object.round_limit, cipher_object.key_schedule, block_array, encrypted_block)
+        elif block_size == 48:
+            speck_lib.Speck_Encrypt_48(cipher_object.round_limit, cipher_object.key_schedule, block_array, encrypted_block)
+        elif block_size == 64:
+            speck_lib.Speck_Encrypt_64(cipher_object.round_limit, cipher_object.key_schedule, block_array, encrypted_block)
+        elif block_size == 96:
+            speck_lib.Speck_Encrypt_96(cipher_object.round_limit, cipher_object.key_schedule, block_array, encrypted_block)
+        elif block_size == 128:
+            speck_lib.Speck_Encrypt_128(cipher_object.round_limit, cipher_object.key_schedule, block_array, encrypted_block)
+
+        # speck_encrypt(ctypes.byref(cipher_object), block_array, encrypted_block)
         end_time = time.perf_counter()
         encryption_time = end_time - start_time
         total_encryption_time += encryption_time
@@ -252,7 +263,17 @@ def c_speck_decrypt_file(ciphertext, key, block_size):
             decrypted_block = (ctypes.c_ubyte * len(block))()
 
             start_time = time.perf_counter()
-            speck_decrypt(ctypes.byref(cipher_object), block_array, decrypted_block)
+            if block_size == 32:
+                speck_lib.Speck_Decrypt_32(cipher_object.round_limit, cipher_object.key_schedule, block_array, decrypted_block)
+            elif block_size == 48:
+                speck_lib.Speck_Decrypt_48(cipher_object.round_limit, cipher_object.key_schedule, block_array, decrypted_block)
+            elif block_size == 64:
+                speck_lib.Speck_Decrypt_64(cipher_object.round_limit, cipher_object.key_schedule, block_array, decrypted_block)
+            elif block_size == 96:
+                speck_lib.Speck_Decrypt_96(cipher_object.round_limit, cipher_object.key_schedule, block_array, decrypted_block)
+            elif block_size == 128:
+                speck_lib.Speck_Decrypt_128(cipher_object.round_limit, cipher_object.key_schedule, block_array, decrypted_block)
+            # speck_decrypt(ctypes.byref(cipher_object), block_array, decrypted_block)
             end_time = time.perf_counter()
 
             decryption_time = end_time - start_time

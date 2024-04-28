@@ -1,10 +1,7 @@
 import ctypes
 import os
 from enum import IntEnum
-import secrets
 import time
-import resource
-import sys
 import subprocess
 import os 
 
@@ -19,7 +16,7 @@ class SimSpk_Cipher(ctypes.Structure):
         ("round_limit", ctypes.c_uint8),
         ("cipher_cfg", ctypes.c_uint8),
         ("z_seq", ctypes.c_uint8),
-        ("key_schedule", ctypes.c_uint64 * 72),  # Maximum key schedule size
+        ("key_schedule", ctypes.c_uint64 * 68),  # Maximum key schedule size
         ("encryptPtr", ctypes.c_void_p),  # Function pointer for encryption
         ("decryptPtr", ctypes.c_void_p),  # Function pointer for decryption
     ]
@@ -76,7 +73,7 @@ def c_simon_encrypt_file(plaintext, key, block_size):
         cipher_object.round_limit = 72
         cipher_object.cipher_cfg = 0
         cipher_object.z_seq = 0
-        cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+        cipher_object.key_schedule = (ctypes.c_uint64 * 68)()
         cipher_object.encryptPtr = None
         cipher_object.decryptPtr = None
         block_size_bytes = 4
@@ -88,7 +85,7 @@ def c_simon_encrypt_file(plaintext, key, block_size):
         cipher_object.round_limit = 72
         cipher_object.cipher_cfg = 2
         cipher_object.z_seq = 0
-        cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+        cipher_object.key_schedule = (ctypes.c_uint64 * 68)()
         cipher_object.encryptPtr = None
         cipher_object.decryptPtr = None
         block_size_bytes = 6
@@ -100,7 +97,7 @@ def c_simon_encrypt_file(plaintext, key, block_size):
         cipher_object.round_limit = 72
         cipher_object.cipher_cfg = 3
         cipher_object.z_seq = 0
-        cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+        cipher_object.key_schedule = (ctypes.c_uint64 * 68)()
         cipher_object.encryptPtr = None
         cipher_object.decryptPtr = None
         block_size_bytes = 8
@@ -112,7 +109,7 @@ def c_simon_encrypt_file(plaintext, key, block_size):
         cipher_object.round_limit = 72
         cipher_object.cipher_cfg = 5
         cipher_object.z_seq = 0
-        cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+        cipher_object.key_schedule = (ctypes.c_uint64 * 68)()
         cipher_object.encryptPtr = None
         cipher_object.decryptPtr = None
         block_size_bytes = 12
@@ -124,7 +121,7 @@ def c_simon_encrypt_file(plaintext, key, block_size):
         cipher_object.round_limit = 72
         cipher_object.cipher_cfg = 7
         cipher_object.z_seq = 0
-        cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+        cipher_object.key_schedule = (ctypes.c_uint64 * 68)()
         cipher_object.encryptPtr = None
         cipher_object.decryptPtr = None
         block_size_bytes = 16
@@ -147,8 +144,18 @@ def c_simon_encrypt_file(plaintext, key, block_size):
         encrypted_block = (ctypes.c_ubyte * len(block))()
         
         start_time = time.perf_counter()
-        
-        simon_encrypt(ctypes.byref(cipher_object), block_array, encrypted_block)
+
+        if block_size == 32:
+            simon_lib.Simon_Encrypt_32(cipher_object.round_limit, cipher_object.key_schedule, block_array, encrypted_block)
+        elif block_size == 48:
+            simon_lib.Simon_Encrypt_48(cipher_object.round_limit, cipher_object.key_schedule, block_array, encrypted_block)
+        elif block_size == 64:
+            simon_lib.Simon_Encrypt_64(cipher_object.round_limit, cipher_object.key_schedule, block_array, encrypted_block)
+        elif block_size == 96:
+            simon_lib.Simon_Encrypt_96(cipher_object.round_limit, cipher_object.key_schedule, block_array, encrypted_block)
+        elif block_size == 128:
+            simon_lib.Simon_Encrypt_128(cipher_object.round_limit, cipher_object.key_schedule, block_array, encrypted_block)
+        # simon_encrypt(ctypes.byref(cipher_object), block_array, encrypted_block)
         
         end_time = time.perf_counter()
         encryption_time = end_time - start_time
@@ -188,7 +195,7 @@ def c_simon_decrypt_file(ciphertext, key, block_size):
             cipher_object.round_limit = 72
             cipher_object.cipher_cfg = 0
             cipher_object.z_seq = 0
-            cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+            cipher_object.key_schedule = (ctypes.c_uint64 * 68)()
             cipher_object.encryptPtr = None
             cipher_object.decryptPtr = None
             block_size_bytes = 4
@@ -200,7 +207,7 @@ def c_simon_decrypt_file(ciphertext, key, block_size):
             cipher_object.round_limit = 72
             cipher_object.cipher_cfg = 2
             cipher_object.z_seq = 0
-            cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+            cipher_object.key_schedule = (ctypes.c_uint64 * 68)()
             cipher_object.encryptPtr = None
             cipher_object.decryptPtr = None
             block_size_bytes = 6
@@ -213,7 +220,7 @@ def c_simon_decrypt_file(ciphertext, key, block_size):
             cipher_object.round_limit = 72
             cipher_object.cipher_cfg = 3
             cipher_object.z_seq = 0
-            cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+            cipher_object.key_schedule = (ctypes.c_uint64 * 68)()
             cipher_object.encryptPtr = None
             cipher_object.decryptPtr = None
             block_size_bytes = 8
@@ -225,7 +232,7 @@ def c_simon_decrypt_file(ciphertext, key, block_size):
             cipher_object.round_limit = 72
             cipher_object.cipher_cfg = 5
             cipher_object.z_seq = 0
-            cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+            cipher_object.key_schedule = (ctypes.c_uint64 * 68)()
             cipher_object.encryptPtr = None
             cipher_object.decryptPtr = None
             block_size_bytes = 12
@@ -237,7 +244,7 @@ def c_simon_decrypt_file(ciphertext, key, block_size):
             cipher_object.round_limit = 72
             cipher_object.cipher_cfg = 7
             cipher_object.z_seq = 0
-            cipher_object.key_schedule = (ctypes.c_uint64 * 72)()
+            cipher_object.key_schedule = (ctypes.c_uint64 * 68)()
             cipher_object.encryptPtr = None
             cipher_object.decryptPtr = None
             block_size_bytes = 16
@@ -259,7 +266,19 @@ def c_simon_decrypt_file(ciphertext, key, block_size):
             decrypted_block = (ctypes.c_ubyte * len(block))()
 
             start_time = time.perf_counter()
-            simon_decrypt(ctypes.byref(cipher_object), block_array, decrypted_block)
+
+            if block_size == 32:
+                simon_lib.Simon_Decrypt_32(cipher_object.round_limit, cipher_object.key_schedule, block_array, decrypted_block)
+            elif block_size == 48:
+                simon_lib.Simon_Decrypt_48(cipher_object.round_limit, cipher_object.key_schedule, block_array, decrypted_block)
+            elif block_size == 64:
+                simon_lib.Simon_Decrypt_64(cipher_object.round_limit, cipher_object.key_schedule, block_array, decrypted_block)
+            elif block_size == 96:
+                simon_lib.Simon_Decrypt_96(cipher_object.round_limit, cipher_object.key_schedule, block_array, decrypted_block)
+            elif block_size == 128:
+                simon_lib.Simon_Decrypt_128(cipher_object.round_limit, cipher_object.key_schedule, block_array, decrypted_block)
+
+            # simon_decrypt(ctypes.byref(cipher_object), block_array, decrypted_block)
             end_time = time.perf_counter()
 
             decryption_time = end_time - start_time
