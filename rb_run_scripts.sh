@@ -29,7 +29,7 @@ python3 rb_main.py simon 128 Files/Crypto_input/video/video_2.mp4 64
 
 python3 rb_main.py simon 144 Files/Crypto_input/video/video_2.mp4 96
 
-python3 rb_main.py simon 256 Files/Crypto_input/video/video_2.mp4 128
+# python3 rb_main.py simon 256 Files/Crypto_input/video/video_2.mp4 128
 
 # -----------------C Implementation of SPECK CIPHER -----------------
 

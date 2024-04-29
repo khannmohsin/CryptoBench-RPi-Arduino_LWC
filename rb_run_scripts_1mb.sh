@@ -1,5 +1,5 @@
 #!/bin/bash
-iterations=10
+iterations=5
 
 echo -e "\n"
 
@@ -31,7 +31,7 @@ for ((i = 1; i <= iterations; i++)); do
 
     python3 rb_main.py simon 144 Files/Crypto_input/photo/oneMB_photo.jpg 96
 
-    python3 rb_main.py simon 256 Files/Crypto_input/photo/oneMB_photo.jpg 128
+    # python3 rb_main.py simon 256 Files/Crypto_input/photo/oneMB_photo.jpg 128
 
     # -----------------C Implementation of SPECK CIPHER -----------------
 
