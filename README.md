@@ -1,4 +1,4 @@
-"""# Lightweight Cryptographic Cipher Benchmarking Suite
+# Lightweight Cryptographic Cipher Benchmarking Suite
 
 ## Overview
 
