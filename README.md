@@ -1,4 +1,4 @@
-# Lightweight Cryptographic Cipher Benchmarking Suite
+# CryptoBench-RPi-Arduino_LWC: Lightweight Cryptographic Cipher Benchmarking Suite
 
 ## Overview
 
