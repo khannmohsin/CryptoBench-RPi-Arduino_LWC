@@ -87,18 +87,11 @@ python3 rb_main.py speck 128 Files/Crypto_input/video/video_2.mp4 64
 - Raspberry Pi communicates cipher start/end to Arduino via GPIO
 - Arduino logs real-time power usage during cipher execution
 
-```markdown
-<div style="text-align: center; width: 50%; margin: auto; border: 1px solid #ccc; padding: 10px;">
-    <img src="Manuscript/Dig_circuit.png" alt="Energy Measurement" style="max-width: 100%; height: auto;">
-</div>
-```
+<img src="Manuscript/Dig_circuit.png" alt="Energy Measurement" width="400"/>
 
-```markdown
-<div style="text-align: center; width: 50%; margin: auto; border: 1px solid #ccc; padding: 10px;">
-    <embed src="Manuscript/Schematics_curr_power_measurement.pdf" type="application/pdf" width="100%" height="600px" />
-    <p style="text-align: center;">Energy Measurement Circuit Diagram</p>
-</div>
-```
+![Energy Measurement Circuit Diagram](Manuscript/Schematics_curr_power_measurement.pdf)
+
+[View Energy Measurement Circuit Diagram (PDF)](Manuscript/Schematics_curr_power_measurement.pdf)
 
 ## Academic Reference
 
