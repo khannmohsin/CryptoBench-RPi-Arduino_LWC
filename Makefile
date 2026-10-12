@@ -2,6 +2,7 @@
 #   make build   - compile all .so files
 #   make clean   - remove them
 #   make list    - list available ciphers and their key/block sizes
+#   make test    - build, then run the test suite
 CC      ?= gcc
 CFLAGS  ?= -O2 -fPIC -shared
 PYTHON  ?= python3
@@ -23,7 +24,7 @@ LIBS := \
 	LW_Stream_Cipher/eSTREAM/SW_oriented/Sosemanuk/c_imp/sosemanuk.so \
 	$(ASCON_DIR)/main.so
 
-.PHONY: build clean list
+.PHONY: build clean list test
 build: $(LIBS)
 
 %.so: %.c
@@ -37,3 +38,6 @@ clean:
 
 list:
 	$(PYTHON) benchmark.py --list
+
+test: build
+	$(PYTHON) -m pytest tests

@@ -82,11 +82,27 @@ The original scripts still work: `rb_main.py` (= `benchmark.py run ... --energy 
 One CSV per metric in `Measurements/`: `encryption_/decryption_` × `time`, `throughput`, `CpB`, `RAM`.
 Rows are `Algorithm, Block Size, Key Size, value1, value2, ...`. `Measurements/Measurement_main.py` aggregates and plots them.
 
+## Tests
+
+```bash
+make test          # builds the C ciphers, then runs pytest
+```
+
+- `tests/test_unit.py` – the framework: registry, CSV output, keys, runner, CLI and legacy scripts (no hardware needed)
+- `tests/test_ciphers.py` – every cipher configuration encrypts and decrypts back to the input, both for
+  whole-block input and for input with a partial last block. Each runs in its own process, like the real benchmark.
+
+Known wrapper bugs are marked `xfail` with an explanation in `tests/test_ciphers.py`:
+CLEFIA (round count passed incorrectly), Grain-v1/Trivium/Salsa20/Sosemanuk (wrong output), and the
+block-cipher wrappers not removing padding when the input is not a whole number of blocks.
+Cycle counting and the Arduino energy monitor need the real hardware and are only tested with stand-ins.
+
 ## Adding a Cipher
 
 1. Write a wrapper module next to the implementation exposing
    `encrypt(plaintext, key[, block_size]) -> (ciphertext, time_s, throughput, ram)` and the matching `decrypt`.
 2. For C code, add its `.so` to the `LIBS` list in the `Makefile`.
+   Then `make test` checks the new configurations round-trip.
 3. Add a `Cipher(...)` entry in [`lwcbench/registry.py`](lwcbench/registry.py).
 4. For energy measurements, add its name to `ciphers[]` in `Arduino_code/receive_data_from_RP/receive_data_from_RP.ino`.
 
@@ -94,7 +110,8 @@ Rows are `Algorithm, Block Size, Key Size, value1, value2, ...`. `Measurements/M
 
 - `benchmark.py` – command-line entry point
 - `lwcbench/` – registry of ciphers (`registry.py`), benchmark loop (`runner.py`), cycle/energy measurement (`measure.py`), CSV output (`results.py`)
-- `Makefile` – builds the C ciphers (`run_conversion.sh` calls it)
+- `Makefile` – builds the C ciphers (`run_conversion.sh` calls it) and runs the tests
+- `tests/` – pytest suite
 - `rb_main.py`, `main.py`, `*run_scripts*.sh` – backwards-compatible entry points
 - `Conv_cipher/`, `LW_Block_Cipher/`, `LW_Stream_Cipher/` – cipher implementations and Python wrappers
 - `Arduino_code/` – Arduino sketch and libraries for the INA219 energy monitor
@@ -108,12 +125,12 @@ Rows are `Algorithm, Block Size, Key Size, value1, value2, ...`. `Measurements/M
 - Raspberry Pi sends `<cipher>_<block>_<key>_enc|dec` and `stop` to the Arduino over serial
 - Arduino logs real-time power usage during cipher execution
 
-<img src="Manuscript/Dig_circuit.png" alt="Energy Measurement" width="400"/>
+<img src="Manuscript/Dig_circuit_web.png" alt="Raspberry Pi Zero W, Arduino UNO and INA219 energy measurement setup" width="400"/>
 
-
-[View Energy Measurement Circuit Diagram (PDF)](Manuscript/Schematics_curr_power_measurement.pdf)
+- [Circuit schematic (PDF)](Manuscript/Schematics_curr_power_measurement.pdf)
+- [Full-resolution photo of the setup](Manuscript/Dig_circuit.png)
 
 ## Academic Reference
 
 If you use this codebase in your work, please cite:
-> Khan, M., Johansen, D., & Dagenborg, H. (2025). Performance Evaluation of Lightweight Cryptographic Ciphers on ARM Processor for IoT Deployments. In *SciSec 2024*, LNCS 15441, pp. 254–272. https://doi.org/10.1007/978-981-96-2417-1_14
+> Khan, M., Johansen, D., & Dagenborg, H. (2025). Performance Evaluation of Lightweight Cryptographic Ciphers on ARM Processor for IoT Deployments. In *SciSec 2024*, LNCS 15441, pp. 254–272. [https://doi.org/10.1007/978-981-96-2417-1_14](https://doi.org/10.1007/978-981-96-2417-1_14)

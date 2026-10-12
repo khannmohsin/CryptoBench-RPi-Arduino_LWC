@@ -6,3 +6,6 @@ pyserial>=3.5      # Arduino energy monitor (only needed with --energy)
 numpy>=1.24
 pandas>=2.0
 matplotlib>=3.7
+
+# Tests
+pytest>=7
