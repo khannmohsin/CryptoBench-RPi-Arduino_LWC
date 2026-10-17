@@ -10,3 +10,12 @@
 pyvenv.cfg
 .venv
 pip-selfcheck.json
+
+# Python / OS noise
+__pycache__/
+*.pyc
+.DS_Store
+
+# Benchmark scratch files
+output.txt
+Files/Crypto_output/decrypted.*
